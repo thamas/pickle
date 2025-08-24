@@ -1,0 +1,31 @@
+{
+    "name": "pickle",
+    "version": "0.1.0",
+    "description": "A vanilla JS <select> replacement utility with a funny name.",
+    "keywords": [
+        "select",
+        "dropdown",
+        "vanilla-js",
+        "ui",
+        "picker"
+    ],
+    "homepage": "https://github.com/gh-o-st/pickle#readme",
+    "bugs": {
+        "url": "https://github.com/gh-o-st/pickle/issues"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/gh-o-st/pickle.git"
+    },
+    "license": "MPL-2.0",
+    "author": "gh-o-st",
+    "type": "module",
+    "main": "src/pickle.js",
+    "directories": {
+        "test": "test"
+    },
+    "style": "src/pickle.css",
+    "devDependencies": {
+        "jest": "^30.0.5"
+    }
+}
