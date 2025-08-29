@@ -1,7 +1,7 @@
 ## Status
 
 [![Tests](https://github.com/gh-o-st/pickle/actions/workflows/test.yml/badge.svg)](https://github.com/gh-o-st/pickle/actions)
-[![Coverage](https://codecov.io/gh/gh-o-st/pickle/branch/main/graph/badge.svg)](https://codecov.io/gh/gh-o-st/pickle)
+[![Coverage](https://codecov.io/gh/gh-o-st/pickle/branch/stable/graph/badge.svg)](https://codecov.io/gh/gh-o-st/pickle)
 [![npm version](https://badge.fury.io/js/pickle-select.svg)](https://badge.fury.io/js/pickle-select)
 [![License: MPL 2.0](https://img.shields.io/badge/License-MPL%202.0-brightgreen.svg)](https://opensource.org/licenses/MPL-2.0)
 [![Bundle Size](https://img.shields.io/bundlephobia/minzip/pickle-select)](https://bundlephobia.com/package/pickle-select)

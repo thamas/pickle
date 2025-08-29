@@ -8,7 +8,7 @@ coverage/
 *.log
 
 # not ready yet
-demo/
+demo/*
 src/modules/
 src/themes/icon-share/
 src/themes/landing-page/
