@@ -1,0 +1,103 @@
+/**
+ * Pickle Minimalist Theme
+ * Clean, simple, and elegant with a focus on typography and space.
+ */
+
+/* ==========================================================================
+   Minimalist Theme Variables
+   ========================================================================== */
+
+.pickle-select--minimalist {
+  /* Light Mode */
+  --pickle-bg-primary: #ffffff;
+  --pickle-bg-secondary: #f9f9f9;
+  --pickle-bg-hover: #f5f5f5;
+  --pickle-bg-active: #eeeeee;
+
+  --pickle-border-color: #dcdcdc;
+  --pickle-border-hover: #b0b0b0;
+  --pickle-border-focus: #333333;
+  --pickle-border-disabled: #eeeeee;
+
+  --pickle-text-primary: #333333;
+  --pickle-text-secondary: #777777;
+  --pickle-text-placeholder: #aaaaaa;
+  
+  --pickle-shadow-sm: none;
+  --pickle-shadow-md: none;
+  --pickle-shadow-lg: 0 5px 15px rgba(0, 0, 0, 0.08);
+
+  --pickle-ring-color: rgba(51, 51, 51, 0.5);
+  --pickle-border-radius: 4px;
+  --pickle-transition: all 0.2s ease-out;
+}
+
+[data-theme='dark'] .pickle-select--minimalist,
+.pickle-select--minimalist[data-theme='dark'] {
+  /* Dark Mode */
+  --pickle-bg-primary: #1f1f1f;
+  --pickle-bg-secondary: #2a2a2a;
+  --pickle-bg-hover: #333333;
+  --pickle-bg-active: #404040;
+
+  --pickle-border-color: #444444;
+  --pickle-border-hover: #666666;
+  --pickle-border-focus: #eeeeee;
+  
+  --pickle-text-primary: #e0e0e0;
+  --pickle-text-secondary: #aaaaaa;
+  --pickle-text-placeholder: #777777;
+  
+  --pickle-shadow-lg: 0 5px 20px rgba(0, 0, 0, 0.3);
+  --pickle-ring-color: rgba(238, 238, 238, 0.5);
+}
+
+/* ==========================================================================
+   Minimalist Style Overrides
+   ========================================================================== */
+
+.pickle-select--minimalist .pickle-select__trigger {
+  transition: border-color var(--pickle-transition);
+}
+
+.pickle-select--minimalist .pickle-select__option {
+  border-bottom: none;
+  border-radius: var(--pickle-border-radius);
+  margin: 0.25rem 0.25rem;
+  padding-left: var(--pickle-spacing-md);
+  padding-right: var(--pickle-spacing-md);
+  width: calc(100% - 0.5rem);
+}
+
+.pickle-select--minimalist .pickle-select__option--focused {
+  background-color: var(--pickle-bg-hover);
+  outline: none;
+}
+
+.pickle-select--minimalist .pickle-select__option--selected {
+  font-weight: 500;
+  background-color: var(--pickle-bg-primary);
+  color: var(--pickle-border-focus);
+}
+
+.pickle-select--minimalist .pickle-select__option--selected:hover {
+  background-color: var(--pickle-bg-hover);
+}
+
+.pickle-select--minimalist .pickle-select__option--selected::after {
+  /* A simple dot instead of a checkmark */
+  content: "•";
+  float: right;
+  font-weight: bold;
+  font-size: 1.2em;
+  line-height: 1;
+  color: var(--pickle-border-focus);
+}
+
+.pickle-select--minimalist .pickle-select__arrow {
+  color: var(--pickle-text-secondary);
+}
+
+.pickle-select--minimalist .pickle-select__trigger[aria-expanded="true"] .pickle-select__arrow {
+  color: var(--pickle-border-focus);
+}

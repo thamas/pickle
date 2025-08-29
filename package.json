@@ -1,31 +1,41 @@
 {
-    "name": "pickle",
-    "version": "0.1.0",
+    "name": "pickle-select",
+    "version": "1.0.0",
     "description": "A vanilla JS <select> replacement utility with a funny name.",
     "keywords": [
         "select",
         "dropdown",
-        "vanilla-js",
-        "ui",
-        "picker"
+        "vanilla-js"
     ],
-    "homepage": "https://github.com/gh-o-st/pickle#readme",
-    "bugs": {
-        "url": "https://github.com/gh-o-st/pickle/issues"
-    },
     "repository": {
         "type": "git",
         "url": "git+https://github.com/gh-o-st/pickle.git"
     },
     "license": "MPL-2.0",
     "author": "gh-o-st",
-    "type": "module",
-    "main": "src/pickle.js",
-    "directories": {
-        "test": "test"
+    "main": "./dist/pickle.min.js",
+    "module": "./dist/pickle.min.js",
+    "exports": {
+        ".": {
+            "import": "./dist/pickle.min.js",
+            "require": "./dist/pickle.min.js"
+        },
+        "./pickle.css": "./dist/pickle.min.css"
     },
-    "style": "src/pickle.css",
+    "files": [
+        "dist"
+    ],
+    "scripts": {
+        "test": "jest --config jest.config.mjs --coverage",
+        "test:watch": "jest --config jest.config.mjs --watch"
+    },
+    "style": "./dist/pickle.min.css",
     "devDependencies": {
-        "jest": "^30.0.5"
+        "@babel/core": "^7.28.3",
+        "@babel/preset-env": "^7.28.3",
+        "@testing-library/jest-dom": "^6.8.0",
+        "babel-jest": "^30.0.5",
+        "jest": "^30.0.5",
+        "jest-environment-jsdom": "^30.0.5"
     }
 }

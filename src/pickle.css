@@ -1,0 +1,406 @@
+/**
+ * Pickle Default Theme
+ * Clean, modern styling with automatic light/dark mode support
+ */
+
+/* ==========================================================================
+   CSS Custom Properties (Design Tokens)
+   ========================================================================== */
+
+:root {
+  /* Light mode colors */
+  --pickle-bg-primary: #ffffff;
+  --pickle-bg-secondary: #f8fafc;
+  --pickle-bg-hover: #f1f5f9;
+  --pickle-bg-active: #e2e8f0;
+  --pickle-bg-disabled: #f1f5f9;
+  
+  --pickle-border-color: #d1d5db;
+  --pickle-border-hover: #9ca3af;
+  --pickle-border-focus: #3b82f6;
+  --pickle-border-disabled: #e5e7eb;
+  
+  --pickle-text-primary: #1f2937;
+  --pickle-text-secondary: #6b7280;
+  --pickle-text-placeholder: #9ca3af;
+  --pickle-text-disabled: #d1d5db;
+  --pickle-text-selected: #1f2937;
+  
+  --pickle-shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --pickle-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --pickle-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  
+  --pickle-ring-color: rgba(59, 130, 246, 0.5);
+  --pickle-ring-offset: 2px;
+  
+  /* Spacing */
+  --pickle-spacing-xs: 0.25rem;
+  --pickle-spacing-sm: 0.5rem;
+  --pickle-spacing-md: 0.75rem;
+  --pickle-spacing-lg: 1rem;
+  
+  /* Typography */
+  --pickle-font-size: 0.875rem;
+  --pickle-font-weight: 400;
+  --pickle-line-height: 1.25rem;
+  
+  /* Transitions */
+  --pickle-transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  
+  /* Sizes */
+  --pickle-min-height: 2.5rem;
+  --pickle-border-radius: 0.375rem;
+  --pickle-max-height: 15rem;
+}
+
+/* Dark mode colors */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --pickle-bg-primary: #1f2937;
+    --pickle-bg-secondary: #374151;
+    --pickle-bg-hover: #4b5563;
+    --pickle-bg-active: #6b7280;
+    --pickle-bg-disabled: #374151;
+    
+    --pickle-border-color: #4b5563;
+    --pickle-border-hover: #6b7280;
+    --pickle-border-focus: #60a5fa;
+    --pickle-border-disabled: #374151;
+    
+    --pickle-text-primary: #f9fafb;
+    --pickle-text-secondary: #d1d5db;
+    --pickle-text-placeholder: #9ca3af;
+    --pickle-text-disabled: #6b7280;
+    --pickle-text-selected: #f9fafb;
+    
+    --pickle-shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+    --pickle-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+    --pickle-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
+    
+    --pickle-ring-color: rgba(96, 165, 250, 0.5);
+  }
+}
+
+/* ==========================================================================
+   Base Styles
+   ========================================================================== */
+
+.pickle-select {
+  position: relative;
+  display: inline-block;
+  font-family: inherit;
+  font-size: var(--pickle-font-size);
+  line-height: var(--pickle-line-height);
+  color: var(--pickle-text-primary);
+}
+
+/* ==========================================================================
+   Label Styles
+   ========================================================================== */
+
+.pickle-select__label {
+  display: block;
+  margin-bottom: var(--pickle-spacing-xs);
+  font-weight: 500;
+  color: var(--pickle-text-primary);
+}
+
+/* ==========================================================================
+   Trigger Styles (Main Select Button)
+   ========================================================================== */
+
+.pickle-select__trigger {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  min-height: var(--pickle-min-height);
+  padding: var(--pickle-spacing-sm) var(--pickle-spacing-md);
+  background-color: var(--pickle-bg-primary);
+  border: 1px solid var(--pickle-border-color);
+  border-radius: var(--pickle-border-radius);
+  cursor: pointer;
+  transition: var(--pickle-transition);
+  box-shadow: var(--pickle-shadow-sm);
+}
+
+.pickle-select__trigger:hover {
+  border-color: var(--pickle-border-hover);
+  box-shadow: var(--pickle-shadow-md);
+}
+
+.pickle-select__trigger:focus {
+  outline: none;
+  border-color: var(--pickle-border-focus);
+  box-shadow: 0 0 0 var(--pickle-ring-offset) var(--pickle-ring-color);
+}
+
+.pickle-select__trigger[aria-expanded="true"] {
+  border-color: var(--pickle-border-focus);
+  box-shadow: 0 0 0 var(--pickle-ring-offset) var(--pickle-ring-color);
+}
+
+/* ==========================================================================
+   Value Display
+   ========================================================================== */
+
+.pickle-select__value {
+  flex: 1;
+  text-align: left;
+  color: var(--pickle-text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pickle-select__value:empty::before {
+  content: attr(data-placeholder);
+  color: var(--pickle-text-placeholder);
+}
+
+/* ==========================================================================
+   Arrow Icon
+   ========================================================================== */
+
+.pickle-select__arrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.25rem;
+  height: 1.25rem;
+  margin-left: var(--pickle-spacing-sm);
+  color: var(--pickle-text-secondary);
+  transition: var(--pickle-transition);
+  flex-shrink: 0;
+}
+
+.pickle-select__arrow svg {
+  width: 100%;
+  height: 100%;
+}
+
+.pickle-select__trigger[aria-expanded="true"] .pickle-select__arrow {
+  transform: rotate(180deg);
+  color: var(--pickle-border-focus);
+}
+
+/* ==========================================================================
+   Dropdown Styles
+   ========================================================================== */
+
+.pickle-select__dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  margin-top: var(--pickle-spacing-xs);
+  background-color: var(--pickle-bg-primary);
+  border: 1px solid var(--pickle-border-color);
+  border-radius: var(--pickle-border-radius);
+  box-shadow: var(--pickle-shadow-lg);
+  max-height: var(--pickle-max-height);
+  overflow-y: auto;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-0.5rem);
+  transition: var(--pickle-transition);
+}
+
+.pickle-select__dropdown--open {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+/* ==========================================================================
+   Search Input
+   ========================================================================== */
+
+.pickle-select__search {
+  position: sticky;
+  top: 0;
+  width: 100%;
+  padding: var(--pickle-spacing-sm) var(--pickle-spacing-md);
+  background-color: var(--pickle-bg-secondary);
+  border: none;
+  border-bottom: 1px solid var(--pickle-border-color);
+  border-radius: var(--pickle-border-radius) var(--pickle-border-radius) 0 0;
+  font-size: var(--pickle-font-size);
+  color: var(--pickle-text-primary);
+  z-index: 10;
+}
+
+.pickle-select__search::placeholder {
+  color: var(--pickle-text-placeholder);
+}
+
+.pickle-select__search:focus {
+  outline: none;
+  background-color: var(--pickle-bg-primary);
+  border-bottom-color: var(--pickle-border-focus);
+}
+
+/* ==========================================================================
+   Option Styles
+   ========================================================================== */
+
+.pickle-select__option {
+  padding: var(--pickle-spacing-sm) var(--pickle-spacing-md);
+  cursor: pointer;
+  transition: var(--pickle-transition);
+  color: var(--pickle-text-primary);
+  border-bottom: 1px solid transparent;
+}
+
+.pickle-select__option:hover {
+  background-color: var(--pickle-bg-hover);
+}
+
+.pickle-select__option--focused {
+  background-color: var(--pickle-bg-hover);
+  outline: 2px solid var(--pickle-border-focus);
+  outline-offset: -2px;
+}
+
+.pickle-select__option--selected {
+  background-color: var(--pickle-bg-active);
+  color: var(--pickle-text-selected);
+  font-weight: 500;
+}
+
+.pickle-select__option--selected::after {
+  content: "✓";
+  float: right;
+  color: var(--pickle-border-focus);
+  font-weight: bold;
+}
+
+.pickle-select__option--disabled {
+  color: var(--pickle-text-disabled);
+  background-color: transparent;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.pickle-select__option--disabled:hover {
+  background-color: transparent;
+}
+
+/* ==========================================================================
+   State Modifiers
+   ========================================================================== */
+
+/* Disabled State */
+.pickle-select--disabled .pickle-select__trigger {
+  background-color: var(--pickle-bg-disabled);
+  border-color: var(--pickle-border-disabled);
+  color: var(--pickle-text-disabled);
+  cursor: not-allowed;
+}
+
+.pickle-select--disabled .pickle-select__trigger:hover {
+  border-color: var(--pickle-border-disabled);
+  box-shadow: var(--pickle-shadow-sm);
+}
+
+.pickle-select--disabled .pickle-select__arrow {
+  color: var(--pickle-text-disabled);
+}
+
+/* Required State */
+.pickle-select--required .pickle-select__label::after {
+  content: " *";
+  color: #ef4444;
+}
+
+/* Invalid State */
+.pickle-select--invalid .pickle-select__trigger {
+  border-color: #ef4444;
+}
+
+.pickle-select--invalid .pickle-select__trigger:focus {
+  border-color: #ef4444;
+  box-shadow: 0 0 0 var(--pickle-ring-offset) rgba(239, 68, 68, 0.5);
+}
+
+/* ==========================================================================
+   Screen Reader Only Content
+   ========================================================================== */
+
+.pickle-select__sr-only {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+/* ==========================================================================
+   Responsive Design
+   ========================================================================== */
+
+@media (max-width: 640px) {
+  .pickle-select__dropdown {
+    position: fixed;
+    top: auto !important;
+    left: 1rem !important;
+    right: 1rem !important;
+    bottom: 1rem;
+    max-height: 50vh;
+    border-radius: var(--pickle-border-radius);
+  }
+  
+  .pickle-select__option {
+    padding: var(--pickle-spacing-md);
+    font-size: 1rem;
+  }
+}
+
+/* ==========================================================================
+   High Contrast Mode Support
+   ========================================================================== */
+
+@media (prefers-contrast: high) {
+  .pickle-select__trigger {
+    border-width: 2px;
+  }
+  
+  .pickle-select__option--focused {
+    outline-width: 3px;
+  }
+}
+
+/* ==========================================================================
+   Reduced Motion Support
+   ========================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  .pickle-select__trigger,
+  .pickle-select__dropdown,
+  .pickle-select__option,
+  .pickle-select__arrow {
+    transition: none;
+  }
+}
+
+/* ==========================================================================
+   Print Styles
+   ========================================================================== */
+
+@media print {
+  .pickle-select__dropdown {
+    display: none !important;
+  }
+  
+  .pickle-select__trigger::after {
+    content: " [" attr(aria-label) "]";
+    font-size: 0.75em;
+    color: #666;
+  }
+}

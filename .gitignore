@@ -1,8 +1,15 @@
 node_modules/
-dist/
 npm-debug.log*
+package-lock.json
 .DS_Store
 Thumbs.db
 .vscode/
 coverage/
 *.log
+
+# not ready yet
+demo/
+src/modules/
+src/themes/icon-share/
+src/themes/landing-page/
+package-lock.json

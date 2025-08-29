@@ -1,0 +1,109 @@
+/**
+ * Pickle Neumorphic Theme
+ * Soft UI extruded from the background.
+ * NOTE: This theme works best when the page body has the same background color
+ * as --pickle-bg-primary.
+ */
+
+/* ==========================================================================
+   Neumorphic Theme Variables
+   ========================================================================== */
+
+.pickle-select--neumorphic {
+  /* Light Mode */
+  --pickle-bg-primary: #e0e5ec;
+  --pickle-bg-secondary: #dde2e9;
+  --pickle-bg-active: #e0e5ec;
+  --pickle-bg-disabled: #e0e5ec;
+  --pickle-bg-hover: #e0e5ec;
+
+  --pickle-border-color: transparent;
+  
+  --pickle-text-primary: #3f7093;
+  --pickle-text-secondary: #6e8498;
+  --pickle-text-placeholder: #8d9faf;
+  --pickle-text-selected: #3f7093;
+
+  --pickle-shadow-light: rgba(255, 255, 255, 0.9);
+  --pickle-shadow-dark: #a3b1c6;
+  
+  --pickle-shadow-sm: none;
+  --pickle-shadow-md: none;
+  --pickle-shadow-lg: none;
+
+  --pickle-border-radius: 12px;
+  --pickle-transition: all 0.2s ease-in-out;
+}
+
+[data-theme='dark'] .pickle-select--neumorphic,
+.pickle-select--neumorphic[data-theme='dark'] {
+  /* Dark Mode */
+  --pickle-bg-primary: #2c3036;
+  --pickle-bg-active: #2c3036;
+  --pickle-bg-disabled: #2c3036;
+  --pickle-bg-hover: #2c3036;
+
+  --pickle-text-primary: #bad2e6;
+  --pickle-text-secondary: #8a9aaa;
+  --pickle-text-placeholder: #6b7a88;
+  --pickle-text-selected: #bad2e6;
+
+  --pickle-shadow-light: rgba(60, 65, 73, 0.9);
+  --pickle-shadow-dark: #1c1f23;
+}
+
+
+/* ==========================================================================
+   Neumorphic Style Overrides
+   ========================================================================== */
+
+.pickle-select--neumorphic .pickle-select__trigger,
+.pickle-select--neumorphic .pickle-select__dropdown {
+  background: var(--pickle-bg-primary);
+  box-shadow: -5px -5px 10px var(--pickle-shadow-light), 5px 5px 10px var(--pickle-shadow-dark);
+}
+
+.pickle-select--neumorphic .pickle-select__trigger:hover {
+  box-shadow: -3px -3px 6px var(--pickle-shadow-light), 3px 3px 6px var(--pickle-shadow-dark);
+}
+
+.pickle-select--neumorphic .pickle-select__trigger:focus,
+.pickle-select--neumorphic .pickle-select__trigger[aria-expanded="true"] {
+  outline: none;
+  box-shadow: inset -3px -3px 6px var(--pickle-shadow-light), inset 3px 3px 6px var(--pickle-shadow-dark);
+}
+
+.pickle-select--neumorphic .pickle-select__dropdown {
+  box-shadow: -5px -5px 10px var(--pickle-shadow-light), 5px 5px 10px var(--pickle-shadow-dark);
+}
+
+.pickle-select--neumorphic .pickle-select__search {
+  border-bottom: 1px solid var(--pickle-shadow-dark);
+  background: transparent;
+}
+.pickle-select--neumorphic .pickle-select__search:focus {
+  background: var(--pickle-bg-secondary);
+}
+
+.pickle-select--neumorphic .pickle-select__option {
+  border-radius: var(--pickle-border-radius);
+  color: var(--pickle-text-secondary);
+}
+
+.pickle-select--neumorphic .pickle-select__option:hover,
+.pickle-select--neumorphic .pickle-select__option--focused {
+  background-color: transparent;
+  color: var(--pickle-text-primary);
+  outline: none;
+}
+
+.pickle-select--neumorphic .pickle-select__option--selected {
+  font-weight: 600;
+  color: var(--pickle-text-selected);
+  background-color: transparent;
+  box-shadow: inset -2px -2px 4px var(--pickle-shadow-light), inset 2px 2px 4px var(--pickle-shadow-dark);
+}
+
+.pickle-select--neumorphic .pickle-select__option--selected::after {
+  content: none;
+}
