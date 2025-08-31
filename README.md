@@ -1,5 +1,3 @@
-## Status
-
 [![Tests](https://github.com/gh-o-st/pickle/actions/workflows/test.yml/badge.svg)](https://github.com/gh-o-st/pickle/actions)
 [![Coverage](https://codecov.io/gh/gh-o-st/pickle/branch/stable/graph/badge.svg)](https://codecov.io/gh/gh-o-st/pickle)
 [![npm version](https://badge.fury.io/js/pickle-select.svg)](https://badge.fury.io/js/pickle-select)

@@ -126,7 +126,14 @@ export default class Pickle {
     }
 
     /**
-     * Opens the dropdown menu, sets its state to open, and updates relevant ARIA attributes.
+     * Opens the dropdown menu if not disabled.
+     * Emits a 'beforeOpen' event and aborts if prevented.
+     * Closes other instances, updates state, and sets ARIA attributes.
+     * Focuses the search input if present.
+     * Focuses the first selected option, or the first option if none selected.
+     * Emits an 'open' event and logs the action.
+     *
+     * @returns {void}
      */
     open() {
         if (this.disabled) return;
@@ -143,7 +150,11 @@ export default class Pickle {
         this.#clearFocusedOption();
 
         if (this.searchInput) {
-            setTimeout(() => this.searchInput.focus(), 0);
+            setTimeout(() => {
+                if (this.wrapper && this.searchInput) {
+                    this.searchInput.focus();
+                }
+            }, 0);
         }
 
         // Focus the first selected option when opening
@@ -158,6 +169,11 @@ export default class Pickle {
                 this.focusedOption.classList.add('pickle-select__option--focused');
                 this.trigger.setAttribute('aria-activedescendant', this.focusedOption.id);
                 this.#scrollOptionIntoView(this.focusedOption);
+            } else {
+                if (this.debug) {
+                    this.#log('warn', 'Selected value not found in DOM --> failed to focus', firstSelectedValue);
+                }
+                this.#focusFirstOption();
             }
         } else {
             this.#focusFirstOption();
@@ -168,7 +184,11 @@ export default class Pickle {
     }
 
     /**
-     * Closes the dropdown menu if it is currently open.
+     * Closes the dropdown menu if it is open.
+     * Emits 'beforeClose' and 'close' events.
+     * Prevents closing if 'beforeClose' is prevented.
+     * Updates ARIA attributes and resets focused option.
+     * Clears search input if present and returns focus to the trigger element.
      */
     close() {
         if (!this.isOpen) return;
@@ -193,16 +213,24 @@ export default class Pickle {
         this.#log('log', 'Dropdown closed');
     }
 
+
     /**
      * Toggles the open/close state.
+     * If the current state is open, it calls the `close()` method.
+     * If the current state is closed, it calls the `open()` method.
      */
     toggle() {
         this.isOpen ? this.close() : this.open();
     }
 
     /**
-     * Sets the selected option by its value. For multi-select, accepts an array of values.
-     * @param {string|string[]} value - The value or values of the option(s) to select.
+     * Sets the selected value(s) for the picker.
+     * Clears the current selection silently, then selects the provided value(s).
+     * For multiple selection mode, all values in the array are selected.
+     * For single selection mode, only the first value is used.
+     * Fires a single change event after updating the selection.
+     *
+     * @param {any|any[]} value - The value(s) to set as selected. Can be a single value or an array of values.
      */
     set(value) {
         this.clear(true); // Clear silently
@@ -211,15 +239,17 @@ export default class Pickle {
 
         if (this.isMultiple) {
             valuesToSet.forEach(v => this.#toggleOptionSelection(v, null, true));
+            this.#fireChangeEvent();
         } else {
-            // For single-select, only the first value is used
-            if(valuesToSet.length > 0) {
-                this.#toggleOptionSelection(valuesToSet[0], null, true);
+            if (valuesToSet.length > 0) {
+                const singleValue = valuesToSet[0];
+                this.#toggleOptionSelection(singleValue, null, true);
+                const optionData = this.#sourceOptions.find(o => !o.isGroupLabel && o.value === singleValue);
+                this.#fireChangeEvent(optionData || {});
+            } else {
+                this.#fireChangeEvent();
             }
         }
-
-        // Fire a single change event after all changes are made
-        this.#fireChangeEvent();
     }
 
     /**
@@ -253,7 +283,9 @@ export default class Pickle {
             if (this.liveRegion) {
                 this.liveRegion.textContent = '';
                 setTimeout(() => {
-                    this.liveRegion.textContent = this.l10n.selectionCleared;
+                    if (this.wrapper && this.liveRegion) {
+                        this.liveRegion.textContent = this.l10n.selectionCleared;
+                    }
                 }, 50);
             }
         }
@@ -319,7 +351,11 @@ export default class Pickle {
                 return optData ? optData.text : '';
             });
         }
-        return (this.selectedOption ? this.selectedOption.textContent : this.#sourceOptions.find(o => o.value === this.originalSelect.value)?.text) || '';
+        const value = this.get();
+        if (!value) {
+            return '';
+        }
+        return (this.selectedOption ? this.selectedOption.textContent : this.#sourceOptions.find(o => o.value === value)?.text) || '';
     }
 
     /**
@@ -1408,10 +1444,10 @@ export default class Pickle {
         this.originalSelect.dispatchEvent(new Event('change', { bubbles: true }));
         this.#emit('change', { value, text });
         
-        if (this.liveRegion && !this.isMultiple && optionData.text) {
+        if (this.liveRegion && !this.isMultiple && optionData.text && value) {
             this.liveRegion.textContent = '';
             setTimeout(() => {
-                if (this.liveRegion) {
+                if (this.wrapper && this.liveRegion) {
                     this.liveRegion.textContent = this.l10n.selected.replace('{text}', optionData.text);
                 }
             }, 16);
