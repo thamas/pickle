@@ -5,14 +5,21 @@ export default class PickleUtils {
         this.p = pickleInstance;
     }
 
+    /**
+     * Generates a unique ID string for an instance.
+     * The ID is composed of a prefix, the current number of instances, and a random hexadecimal string.
+     *
+     * @returns {string} A unique identifier in the format 'pckl-{instanceCount}-{randomHex}'.
+     */
     generateID() {
         return `pckl-${this.p.constructor.instances.size + 1}-${Math.random().toString(16).slice(2, 8)}`;
     }
 
     /**
-     * Gets an HTMLSelectElement by ID or reference.
-     * @param {string|HTMLElement} elementOrID - The element or its ID.
-     * @returns {HTMLSelectElement|null} The select element if found.
+     * Retrieves an HTMLSelectElement by its ID or returns the element if it is already an HTMLSelectElement.
+     *
+     * @param {string|HTMLElement} elementOrID - The ID of the element (optionally prefixed with '#') or the element itself.
+     * @returns {HTMLSelectElement|null} The HTMLSelectElement if found, otherwise null.
      */
     getElement(elementOrID) {
         if (typeof elementOrID === 'string') {
@@ -26,16 +33,20 @@ export default class PickleUtils {
     }
 
     /**
-     * Escapes characters in a string for use in a Regular Expression.
+     * Escapes special characters in a string to be used in a regular expression.
+     *
      * @param {string} string - The string to escape.
-     * @returns {string} - The escaped string.
+     * @returns {string} The escaped string safe for use in a regular expression.
      */
     escapeRegExp(string) {
         return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     }
 
     /**
-     * Logs messages if debug mode is enabled.
+     * Logs messages to the console with a styled "[Pickle]" prefix, depending on the specified log level.
+     * Only logs if debug mode is enabled (`this.p.debug`).
+     *
+     * @param {'log'|'info'|'warn'|'error'} [level='log'] - The log level to use for the message.
      * @param {...any} args - The arguments to log.
      */
     log(level = 'log', ...args) {
@@ -59,7 +70,8 @@ export default class PickleUtils {
     }
 
     /**
-     * Closes all other open instances.
+     * Closes all other open instances except the current one.
+     * Iterates through all instances and calls the `close` method on those that are open and not the current instance.
      */
     closeOtherInstances() {
         this.p.constructor.instances.forEach(instance => {
@@ -70,10 +82,12 @@ export default class PickleUtils {
     }
 
     /**
-     * Validates the onChange callback.
-     * @param {Function} [onChange] - The callback function.
-     * @returns {Function|null} The validated function.
-     * @throws {Error} If onChange is not a function.
+     * Validates that the provided `onChange` argument is a function.
+     * Logs an error and throws if `onChange` is not a function.
+     *
+     * @param {Function} onChange - The callback function to be invoked on change.
+     * @returns {Function} The validated `onChange` function.
+     * @throws {Error} If `onChange` is provided and is not a function.
      */
     getOnChange(onChange) {
         if (onChange && typeof onChange !== 'function') {
@@ -84,10 +98,11 @@ export default class PickleUtils {
     }
 
     /**
-     * Validates the default value.
-     * @param {string|string[]} [defaultValue] - The default value.
-     * @returns {string|string[]|null} The validated value.
-     * @throws {Error} If defaultValue is not a string or array.
+     * Returns the validated default value based on the provided input.
+     *
+     * @param {string|string[]|null} defaultValue - The default value to validate. Can be a string, an array of strings, or null.
+     * @returns {string|string[]|null} The validated default value, or null if input is null.
+     * @throws {Error} Throws if defaultValue is not a string or an array of strings.
      */
     getDefaultValue(defaultValue) {
         if (defaultValue === null) return null;

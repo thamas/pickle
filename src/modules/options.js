@@ -6,7 +6,12 @@ export default class PickleOptions {
     }
 
     /**
-     * Attaches the scroll listener for lazy loading. Called once at initialization.
+     * Initializes the dropdown options and sets up infinite scroll rendering.
+     * Attaches a scroll event listener to the dropdown element to detect when the user
+     * scrolls near the bottom, triggering the rendering of additional options if available.
+     * Also renders the initial chunk of options.
+     *
+     * @function
      */
     buildOptions() {
         this.p.dropdown.addEventListener('scroll', () => {
@@ -22,7 +27,12 @@ export default class PickleOptions {
     }
 
     /**
-     * Renders the next chunk of options from the visible options data array into the dropdown.
+     * Renders a chunk of option elements (up to CHUNK_SIZE) into the options list.
+     * Handles both group labels and individual options, applying appropriate classes,
+     * ARIA attributes, and selection states. Appends the created elements to a document fragment
+     * for efficient DOM updates, then adds them to the options list container.
+     *
+     * @returns {void}
      */
     renderChunk() {
         const CHUNK_SIZE = 100;
@@ -41,7 +51,7 @@ export default class PickleOptions {
                     groupEl.classList.add('pickle-select__optgroup-label--disabled');
                 }
                 fragment.appendChild(groupEl);
-                this.p.options.push(groupEl); // keep index in sync
+                this.p.options.push(groupEl); 
                 continue;
             }
 
@@ -78,7 +88,9 @@ export default class PickleOptions {
     }
 
     /**
-     * Loads more options if available (for lazy loading).
+     * Loads and renders more options if there are hidden options available.
+     *
+     * @returns {boolean} Returns true if more options were rendered, false otherwise.
      */
     loadMoreOptions() {
         if (this.p.options.length < this.p.visibleOptions.length) {
@@ -89,7 +101,11 @@ export default class PickleOptions {
     }
 
     /**
-     * Reads options from the original select, including optgroups.
+     * Caches the options from the original <select> element, including <optgroup> and <option> elements.
+     * Constructs a structured array of option objects, preserving group labels, disabled states, and original indices.
+     * Sets both the source and visible options for further processing.
+     *
+     * @returns {void}
      */
     cacheOptions() {
         const sourceOptions = [];
@@ -126,8 +142,12 @@ export default class PickleOptions {
     }
 
     /**
-     * Handles search input and filters options.
-     * @param {Event} e - The input event.
+     * Handles the search input event for filtering options in the dropdown.
+     * Updates the current search term, filters visible options based on the search term
+     * (using fuzzy search if enabled), and refreshes the dropdown view.
+     * Emits a 'search' event with the search term and the count of visible options.
+     *
+     * @param {Event} e - The input event triggered by the search field.
      */
     handleSearch(e) {
         const searchTerm = e.target.value;
@@ -151,10 +171,14 @@ export default class PickleOptions {
     }
 
     /**
-     * A simple fuzzy match check.
-     * @param {string} searchTerm - The string to search for.
-     * @param {string} target - The string to search within.
-     * @returns {boolean} - True if it's a match.
+     * Determines if all characters of the search term appear in order within the target string,
+     * allowing for non-contiguous matches (fuzzy matching).
+     *
+     * @param {string} searchTerm - The term to search for within the target string.
+     * @param {string} target - The string to be searched.
+     * @returns {boolean} True if the search term matches the target string fuzzily, false otherwise.
+     *
+     * TODO: Improve fuzzyMatch algorithm; current implementation is very simplistic.
      */
     fuzzyMatch(searchTerm, target) {
         const search = searchTerm.toLowerCase();
@@ -174,10 +198,13 @@ export default class PickleOptions {
     }
 
     /**
-     * Core logic for toggling/selecting an option.
-     * @param {string} value The value of the option to affect.
-     * @param {HTMLElement | null} optionElement The DOM element if available.
-     * @param {boolean} [silent=false] If true, will not fire an event.
+     * Toggles the selection state of an option by its value.
+     * Handles both single and multiple selection modes, updates the UI and the underlying select element,
+     * and optionally fires a change event.
+     *
+     * @param {string} value - The value of the option to toggle.
+     * @param {HTMLElement|null} [optionElement=null] - The DOM element representing the option (optional).
+     * @param {boolean} [silent=false] - If true, suppresses firing the change event.
      */
     toggleOptionSelection(value, optionElement = null, silent = false) {
         const optionData = this.p.sourceOptions.find(o => !o.isGroupLabel && o.value === value);
@@ -236,15 +263,19 @@ export default class PickleOptions {
     }
 
     /**
-     * Selects an option by its value (for single-select mode).
-     * @param {string} value - The value to match.
+     * Selects an option by its value, updates the UI and fires change event if applicable.
+     * Finds the option data and element, marks it as selected, updates the display,
+     * and triggers a change event for single-select mode.
+     *
+     * @param {string} value - The value of the option to select.
+     * @returns {void}
      */
     selectOptionByValue(value) {
         const optionData = this.p.sourceOptions.find(opt => !opt.isGroupLabel && opt.value === value);
         if (!optionData || optionData.disabled) {
             return;
         }
-        
+
         this.clearSelectedOption();
         this.p.originalSelect.value = value;
 
@@ -254,13 +285,15 @@ export default class PickleOptions {
             optionElement.setAttribute('aria-selected', 'true');
             this.p.selectedOption = optionElement;
         }
-        
+
         this.p.domManager.updateValueDisplay();
         if(!this.p.isMultiple) this.fireChangeEvent(optionData);
     }
 
     /**
-     * Clears the currently selected option in the UI (for single-select).
+     * Clears the currently selected option in the select component.
+     * Removes the selected styling and ARIA attributes from the previously selected option,
+     * and ensures no option remains marked as selected.
      */
     clearSelectedOption() {
         if (this.p.selectedOption) {
@@ -268,7 +301,7 @@ export default class PickleOptions {
             this.p.selectedOption.removeAttribute('aria-selected');
             this.p.selectedOption = null;
         }
-        // Also clear any other selected options that might be lingering in the DOM but not set as `this.p.selectedOption`
+
         this.p.options.forEach(opt => {
             if(opt.classList.contains('pickle-select__option--selected')) {
                 opt.classList.remove('pickle-select__option--selected');
@@ -278,8 +311,14 @@ export default class PickleOptions {
     }
 
     /**
-     * Centralized method to fire all change events.
-     * @param {object} [optionData] - The data for the option that triggered the change.
+     * Fires a change event when the selection changes.
+     * Updates the text and value based on the current selection,
+     * emits custom events, updates the live region for accessibility,
+     * and logs the selection change.
+     *
+     * @param {Object} [optionData={}] - Optional data about the selected option.
+     * @param {string} [optionData.text] - The display text of the selected option.
+     * @param {*} [optionData.value] - The value of the selected option.
      */
     fireChangeEvent(optionData = {}) {
         const value = this.p.get();
@@ -288,39 +327,37 @@ export default class PickleOptions {
         if (!this.p.isMultiple && !value) {
             text = '';
         }
-        
-        // If no optionData.text is provided but we have a value, try to get it from source options
+
         if (!optionData.text && value && !this.p.isMultiple) {
             const foundOption = this.p.sourceOptions.find(opt => !opt.isGroupLabel && opt.value === value);
             if (foundOption) {
                 optionData = foundOption;
             }
         }
-        
+
         if (this.p.onChange) {
             this.p.onChange(value, { originalEvent: null, text, element: this.p });
         }
-        
+
         this.p.originalSelect.dispatchEvent(new Event('change', { bubbles: true }));
         this.p.eventSystem.emit('change', { value, text });
-        
+
         if (this.p.liveRegion && !this.p.isMultiple && optionData.text) {
-            // Clear any existing live region timeouts to prevent conflicts
+
             this.p.clearLiveRegionTimeouts();
-            
-            // Capture references to prevent null access in setTimeout
+
             const liveRegionRef = this.p.liveRegion;
             const selectedMessage = this.p.l10n.selected.replace('{text}', optionData.text);
-            
+
             liveRegionRef.textContent = '';
             this.p._selectionTimeout = setTimeout(() => {
-                // Check if the reference is still valid before using it
+
                 if (liveRegionRef && liveRegionRef.parentNode) {
                     liveRegionRef.textContent = selectedMessage;
                 }
             }, 16);
         }
-        
+
         this.p.utils.log('log', 'Selection changed:', {value, text});
     }
 }

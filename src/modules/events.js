@@ -6,9 +6,11 @@ export default class PickleEvents {
     }
 
     /**
-     * Emits custom events for better integration.
-     * @param {string} eventName - The event name.
-     * @param {Object} detail - Event detail object.
+     * Emits a custom event from the wrapper element with the given event name and detail.
+     *
+     * @param {string} eventName - The name of the event to emit (without the 'pickle:' prefix).
+     * @param {Object} [detail={}] - Additional data to include in the event's detail.
+     * @returns {CustomEvent|null} The dispatched CustomEvent object, or null if dispatch failed or wrapper is missing.
      */
     emit(eventName, detail = {}) {
         if (!this.p.wrapper) return null;
@@ -29,7 +31,11 @@ export default class PickleEvents {
     }
 
     /**
-     * Attaches all necessary event listeners.
+     * Attaches all necessary event listeners to the Pickle select component elements.
+     * Handles click and keyboard events for the trigger, option selection in the dropdown,
+     * document click for closing the dropdown, and touchmove event propagation.
+     *
+     * @returns {void}
      */
     attachEventListeners() {
         this.p.trigger.addEventListener('click', (e) => {

@@ -6,8 +6,14 @@ export default class PickleNavigation {
     }
 
     /**
-     * Handles keyboard events.
-     * @param {KeyboardEvent} e - The keyboard event object.
+     * Handles keyboard navigation and selection for the component.
+     * Supports Enter, Space, Escape, ArrowDown, ArrowUp, Home, and End keys.
+     * - Enter/Space: Toggles selection or opens the dropdown.
+     * - Escape: Closes the dropdown if open.
+     * - ArrowDown/ArrowUp: Opens dropdown or moves focus between options.
+     * - Home/End: Focuses the first or last option if dropdown is open.
+     *
+     * @param {KeyboardEvent} e - The keyboard event triggered by user interaction.
      */
     handleKeydown(e) {
         switch (e.key) {
@@ -56,9 +62,13 @@ export default class PickleNavigation {
                 break;
         }
     }
-
+    
     /**
-     * Focuses the next selectable option.
+     * Moves focus to the next selectable option in the options list.
+     * Skips disabled options and updates the focused index, focused option,
+     * applies the focused CSS class, updates ARIA attributes, and scrolls the option into view.
+     *
+     * @returns {void}
      */
     focusNextOption() {
         this.p.domManager.clearFocusedOption();
@@ -79,12 +89,16 @@ export default class PickleNavigation {
     }
 
     /**
-     * Focuses the previous selectable option.
+     * Moves focus to the previous selectable option in the options list.
+     * Skips disabled options and updates the focused index, focused option,
+     * and relevant ARIA attributes. Scrolls the newly focused option into view.
+     *
+     * @returns {void}
      */
     focusPreviousOption() {
         this.p.domManager.clearFocusedOption();
         let prevIndex = this.p.focusedIndex > -1 ? this.p.focusedIndex - 1 : this.p.options.length -1;
-        
+
         while (prevIndex >= 0) {
             const option = this.p.options[prevIndex];
             if (option.getAttribute('role') === 'option' && !option.classList.contains('pickle-select__option--disabled')) {
@@ -100,7 +114,9 @@ export default class PickleNavigation {
     }
 
     /**
-     * Focuses the first available option.
+     * Focuses the first available option in the navigation module.
+     * Clears any currently focused option, resets the focused index,
+     * and moves focus to the next available option.
      */
     focusFirstOption() {
         this.p.domManager.clearFocusedOption();
@@ -109,7 +125,9 @@ export default class PickleNavigation {
     }
 
     /**
-     * Focuses the last available option.
+     * Focuses the last option in the options list.
+     * Clears any currently focused option, sets the focused index to the last option,
+     * and then focuses the previous option to ensure correct focus behavior.
      */
     focusLastOption() {
         this.p.domManager.clearFocusedOption();
@@ -118,8 +136,11 @@ export default class PickleNavigation {
     }
 
     /**
-     * Scrolls an option into view.
-     * @param {HTMLElement} option - The option element.
+     * Scrolls the specified option element into view within the dropdown list.
+     * Ensures that the option is visible by adjusting the dropdown's scroll position
+     * if the option is above or below the currently visible area.
+     *
+     * @param {HTMLElement} option - The option element to scroll into view.
      */
     scrollOptionIntoView(option) {
         if (option && this.p.dropdown.scrollHeight > this.p.dropdown.clientHeight) {

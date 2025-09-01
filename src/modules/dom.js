@@ -6,7 +6,9 @@ export default class PickleDOM {
     }
 
     /**
-     * Clears the currently focused option.
+     * Clears the currently focused option in the select component.
+     * Removes the focused CSS class from the option and resets the reference.
+     * Also removes the 'aria-activedescendant' attribute from the trigger element for accessibility.
      */
     clearFocusedOption() {
         if (this.p.focusedOption) {
@@ -17,10 +19,15 @@ export default class PickleDOM {
     }
 
     /**
-     * Focuses the first selected option when opening the dropdown.
+     * Focuses the currently selected option in the DOM.
+     * - If multiple selection is enabled, focuses the first selected value.
+     * - If the selected value exists in the DOM, updates the focused index and option,
+     *   adds the focused class, sets ARIA attributes, and scrolls the option into view.
+     * - If the selected value is not found, logs a warning (if debug is enabled).
+     * - If no value is selected, focuses the first option.
      */
     focusSelectedOption() {
-        // Focus the first selected option when opening
+
         const firstSelectedValue = this.p.isMultiple ?
             (this.p.get()[0] || null) :
             this.p.get();
@@ -43,10 +50,11 @@ export default class PickleDOM {
     }
 
     /**
-     * Creates a new DOM element.
-     * @param {string} tag - The HTML tag name.
-     * @param {string} [className] - Optional CSS class name.
-     * @returns {HTMLElement} The newly created element.
+     * Creates a new DOM element with the specified tag and optional class name.
+     *
+     * @param {string} tag - The type of the element to create (e.g., 'div', 'span').
+     * @param {string} [className] - Optional class name to assign to the element.
+     * @returns {HTMLElement} The newly created DOM element.
      */
     createElement(tag, className) {
         const element = document.createElement(tag);
@@ -55,15 +63,24 @@ export default class PickleDOM {
     }
 
     /**
-     * Gets the placeholder text.
-     * @returns {string} The placeholder text.
+     * Retrieves the placeholder text for the select element.
+     * If an option with value="" exists, its text content is returned.
+     * Otherwise, returns the localized placeholder text.
+     *
+     * @returns {string} The placeholder text for the select element.
      */
     getPlaceholderText() {
         return this.p.originalSelect.querySelector('option[value=""]')?.textContent || this.p.l10n.placeholder;
     }
 
     /**
-     * Creates a custom select UI component to replace the original HTML select element.
+     * Creates a custom-styled select dropdown, replacing the original HTML select element.
+     * Handles accessibility attributes, theming, sizing, and value display.
+     * Initializes DOM structure, ARIA labeling, and sets the initial value based on configuration.
+     *
+     * @function
+     * @memberof PickleDOM
+     * @returns {void}
      */
     createCustomSelect() {
         this.p.originalSelect.style.display = 'none';
@@ -117,7 +134,6 @@ export default class PickleDOM {
 
         this.p.originalSelect.parentNode.insertBefore(this.p.wrapper, this.p.originalSelect.nextSibling);
 
-        // Set initial selected values
         if (this.p.defaultValue) {
              this.p.set(this.p.defaultValue);
         } else if (this.p.isMultiple) {
@@ -131,12 +147,15 @@ export default class PickleDOM {
     }
 
     /**
-     * Creates a new label element for the custom select component.
+     * Finds an existing label element associated with the original select element.
+     * If found, assigns it an ID if it doesn't already have one, and stores the label reference.
+     *
+     * @returns {void}
      */
     createLabel() {
         const existingLabel = document.querySelector(`label[for="${this.p.originalSelect.id}"]`);
         if (existingLabel) {
-            // Don't remove existing label, just ensure it has an ID for accessibility
+
             if (!existingLabel.id) {
                 existingLabel.id = `pickle-label-${this.p.originalSelect.id || this.p.utils.generateID()}`;
             }
@@ -145,7 +164,12 @@ export default class PickleDOM {
     }
 
     /**
-     * Creates a search input for filtering options.
+     * Creates and configures the search input element for the dropdown.
+     * - Sets input type and placeholder.
+     * - Adds event listeners for search, keyboard navigation, and closing.
+     * - Prepends the search input to the dropdown element.
+     *
+     * @returns {void}
      */
     createSearchInput() {
         this.p.searchInput = this.createElement('input', 'pickle-select__search');
@@ -167,7 +191,15 @@ export default class PickleDOM {
     }
 
     /**
-     * Updates the text/tags shown in the trigger element based on current selection.
+     * Updates the display element to show the currently selected value(s).
+     * - For multiple selections:
+     *   - Shows placeholder if no values are selected.
+     *   - Shows a summary text if 4 or more values are selected.
+     *   - Otherwise, displays each selected value as a tag with a remove button.
+     * - For single selection:
+     *   - Shows the selected value or the placeholder text.
+     *
+     * @returns {void}
      */
     updateValueDisplay() {
         this.p.valueDisplay.innerHTML = '';
@@ -183,7 +215,7 @@ export default class PickleDOM {
                     const optionData = this.p.sourceOptions.find(opt => !opt.isGroupLabel && opt.value === value);
                     if (optionData) {
                         const tag = this.createElement('span', 'pickle-select__tag');
-                        
+
                         tag.textContent = optionData.text; 
 
                         const removeBtn = this.createElement('button', 'pickle-select__tag-remove');
@@ -203,25 +235,29 @@ export default class PickleDOM {
                     }
                 });
             }
-        } else { // Single select
+        } else { 
             this.p.valueDisplay.textContent = this.p.getText() || this.getPlaceholderText();
         }
     }
 
     /**
-     * Sets up ARIA labeling for the custom select component.
+     * Sets up ARIA labeling for the dropdown component to improve accessibility.
+     * - Assigns 'aria-multiselectable' to the dropdown based on whether multiple selection is enabled.
+     * - If a label element exists, ensures it has an ID and sets 'aria-labelledby' on the trigger.
+     * - If no label is present, sets 'aria-label' on the trigger using a localized string.
+     * - Ensures the dropdown has a unique ID and sets 'aria-controls' on the trigger.
      */
     setupAriaLabeling() {
         this.p.dropdown.setAttribute('aria-multiselectable', String(this.p.isMultiple));
-        
+
         if (this.p.label) {
-            // We have a label (either existing or created)
+
             if (!this.p.label.id) {
                 this.p.label.id = `pickle-label-${this.p.originalSelect.id || this.p.utils.generateID()}`;
             }
             this.p.trigger.setAttribute('aria-labelledby', this.p.label.id);
         } else {
-            // No label exists, use aria-label
+
             this.p.trigger.setAttribute('aria-label', this.p.l10n.ariaLabel);
         }
 
@@ -232,7 +268,11 @@ export default class PickleDOM {
     }
 
     /**
-     * Ensures all `aria-selected` and class names on rendered options match the current state.
+     * Updates the UI to reflect the selected state of each option element.
+     * Iterates through all option elements, checks if each is selected,
+     * and toggles the corresponding CSS class and ARIA attribute.
+     *
+     * @returns {void}
      */
     refreshSelectedStateInUI() {
         this.p.options.forEach(optionEl => {
@@ -240,14 +280,16 @@ export default class PickleDOM {
 
             const value = optionEl.getAttribute('data-value');
             const isSelected = this.p.isMultiple ? this.p.selectedOptions.has(value) : this.p.originalSelect.value === value;
-            
+
             optionEl.classList.toggle('pickle-select__option--selected', isSelected);
             optionEl.setAttribute('aria-selected', String(isSelected));
         });
     }
 
     /**
-     * Clears and re-renders the options list from the visible options data array.
+     * Refreshes the dropdown view by clearing the current options,
+     * resetting the focused index, and rendering a new chunk of options.
+     * This method also clears any focused option state.
      */
     refreshDropdownView() {
         this.p.optionsList.innerHTML = '';
@@ -258,9 +300,13 @@ export default class PickleDOM {
     }
 
     /**
-     * Takes a string and wraps matching substrings in <mark> tags.
-     * @param {string} text - The option text to highlight.
-     * @returns {string} - An HTML string with matches highlighted.
+     * Highlights occurrences of the current search term within the given text.
+     * If fuzzy search is enabled, highlights each matching character in order.
+     * Otherwise, highlights exact matches of the search term.
+     * The input text is sanitized to prevent XSS.
+     *
+     * @param {string} text - The text in which to highlight matches.
+     * @returns {string} The HTML string with matched characters or terms wrapped in <mark> tags.
      */
     highlightMatches(text) {
         const sanitizer = document.createElement('div');
