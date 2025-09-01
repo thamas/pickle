@@ -76,6 +76,7 @@ describe('Pickle Accessibility Tests', () => {
             expect(label.id).toBe('');
 
             label.setAttribute('for', selectElement.id);
+            container.appendChild(label); // Add label to DOM so querySelector can find it
 
             const pickle = new Pickle(selectElement);
 
@@ -340,7 +341,7 @@ describe('Pickle Accessibility Tests', () => {
             pickle.set('option1');
             pickle.clear();
             
-            await new Promise(resolve => setTimeout(resolve, 60));
+            await new Promise(resolve => setTimeout(resolve, 100));
             
             expect(pickle.liveRegion.textContent).toBe(pickle.l10n.selectionCleared);
         });

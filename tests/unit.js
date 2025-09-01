@@ -42,11 +42,16 @@ describe('Pickle Unit Tests', () => {
         });
 
         it('should throw error and log to console if debug is enabled', () => {
+            let pickle;
             const invalidElement = document.createElement('div'); // Not a select
             expect(() => {
-                new Pickle(invalidElement, { debug: true });
+                pickle = new Pickle(invalidElement, { debug: true });
             }).toThrow('Invalid select element provided');
-            expect(console.error).toHaveBeenCalledWith('Pickle initialization error:', expect.any(Error));
+            expect(console.error).toHaveBeenCalledWith(
+                '%c[Pickle]',
+                expect.any(String),
+                'Invalid select element provided'
+            );
         });
 
         it('should throw error for non-select element', () => {
@@ -106,6 +111,36 @@ describe('Pickle Unit Tests', () => {
             pickle = new Pickle(selectElement, { defaultValue: ['option1', 'option2'] });
             expect(pickle.defaultValue).toEqual(['option1', 'option2']);
         });
+
+        it('should handle array with non-string values in multi-select by returning empty array', () => {
+            selectElement.multiple = true;
+            // This should trigger the return []; on line 100
+            pickle = new Pickle(selectElement, { defaultValue: ['option1', 123, 'option2'] });
+            expect(pickle.defaultValue).toEqual([]);
+        });
+
+        it('should log error and throw for invalid defaultValue when debug enabled', () => {
+            // Mock console methods to capture debug logs
+            const originalError = console.error;
+            const mockError = jest.fn();
+            console.error = mockError;
+            
+            try {
+                // This should trigger line 103 (debug log) and line 104 (throw error)
+                expect(() => new Pickle(selectElement, { defaultValue: 123, debug: true }))
+                    .toThrow('defaultValue must be a string or an array of strings');
+                    
+                // Check that debug logging was called
+                expect(mockError).toHaveBeenCalledWith(
+                    '%c[Pickle]',
+                    'color: #33a383; font-weight: bold;',
+                    'defaultValue must be a string or an array of strings'
+                );
+            } finally {
+                // Restore original console method
+                console.error = originalError;
+            }
+        });
     });
 
     describe('Core Functionality', () => {
@@ -157,27 +192,25 @@ describe('Pickle Unit Tests', () => {
             it('should warn if selected value not in DOM (if debug is enabled)', () => {
                 const select = document.createElement('select');
                 document.body.appendChild(select);
-                const pickle = new Pickle(select, {debug:true});
-                
-                // Add options initially
+                const pickle = new Pickle(select, { debug: true });
+
                 pickle.updateOptions([
                     { value: 'option1', text: 'Option 1' }
                 ]);
-                
-                // Mock the get method to return a value even when options are removed
+
+                // Mock get to return a value not present in options
                 const originalGet = pickle.get;
                 pickle.get = jest.fn().mockReturnValue('nonexistent-value');
-                
-                // Remove all options so find() will return undefined
-                pickle.updateOptions([]);
-                
+
+                // Spy before open
                 const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
+
                 pickle.open();
 
                 expect(warnSpy).toHaveBeenCalledWith(
-                    '%c[Pickle]', 
-                    'color: #33a383; font-weight: bold;', 
-                    'Selected value not found in DOM --> failed to focus', 
+                    '%c[Pickle]',
+                    'color: #33a383; font-weight: bold;',
+                    'Selected value not found in DOM --> failed to focus',
                     'nonexistent-value'
                 );
 
@@ -339,29 +372,21 @@ describe('Pickle Unit Tests', () => {
             });
 
             it('should update live region when clearing selection', async () => {
-                const select = document.createElement('select');
-                select.innerHTML = '<option value="1">Option 1</option><option value="2">Option 2</option>';
-                document.body.appendChild(select);
+                pickle = new Pickle(selectElement)
                 
-                const pickle = new Pickle(select, {
-                    // Add any options that enable live region (check your constructor)
-                    // This might be something like: accessibility: true, announceChanges: true, etc.
-                });
-                
-                if (!pickle.liveRegion) {
-                    pickle.liveRegion = document.createElement('div');
-                    pickle.liveRegion.setAttribute('aria-live', 'polite');
-                    document.body.appendChild(pickle.liveRegion);
-                }
+                pickle.liveRegion = document.createElement('div');
+                pickle.liveRegion.setAttribute('aria-live', 'polite');
+                document.body.appendChild(pickle.liveRegion);
                 
                 pickle.set('1');
-                
                 if (!pickle.l10n) {
                     pickle.l10n = { selectionCleared: 'Selection cleared' };
                 }
-                
                 pickle.clear();
-                
+                pickle.clear();
+                console.log('liveRegion after clear:', pickle.liveRegion);
+                await new Promise(resolve => setTimeout(resolve, 60));
+                console.log('liveRegion after timeout:', pickle.liveRegion);
                 expect(pickle.liveRegion.textContent).toBe('');
                 
                 await new Promise(resolve => setTimeout(resolve, 60));
@@ -371,20 +396,13 @@ describe('Pickle Unit Tests', () => {
 
             it('should trigger the custom onChange handler with correct arguments when clearing', () => {
                 const changeSpy = jest.fn();
-                
-                // Set up Pickle with initial selection
                 pickle.set('option1');
                 
-                // Clear any previous calls from the set() above
                 changeSpy.mockClear();
-                
-                // Set the custom onChange handler
+
                 pickle.onChange = changeSpy;
-                
-                // Clear the selection - this should trigger onChange
                 pickle.clear();
                 
-                // The clear() should call onChange with empty value and text
                 expect(changeSpy).toHaveBeenCalledWith('', { 
                     originalEvent: null, 
                     text: '', 
@@ -784,13 +802,26 @@ describe('Pickle Unit Tests', () => {
 
         it('should handle debug mode logging', () => {
             pickle = new Pickle(selectElement, { debug: true });
-            expect(() => pickle._log('info', 'test message')).not.toThrow();
+            expect(() => pickle.utils.log('info', 'test message')).not.toThrow();
         });
 
         it('should handle event dispatch failure gracefully', () => {
             pickle = new Pickle(selectElement);
             pickle.wrapper = null;
             expect(() => pickle.open()).not.toThrow();
+        });
+
+        it('should call toggle when not disabled on click', () => {
+            const pickle = new Pickle(selectElement, { disabled: false });
+            const toggleSpy = jest.spyOn(pickle, 'toggle');
+            pickle.eventSystem.attachEventListeners();
+
+            // Debugging output
+            expect(pickle.trigger).toBeTruthy();
+            expect(typeof pickle.trigger.addEventListener).toBe('function');
+
+            pickle.trigger.click();
+            expect(toggleSpy).toHaveBeenCalled();
         });
 
         it('handles dispatch failure gracefully', () => {
@@ -811,6 +842,397 @@ describe('Pickle Unit Tests', () => {
             pickle = new Pickle(selectElement);
             expect(pickle.label).toBeTruthy();
             expect(pickle.label.textContent).toBe('Test Label');
+        });
+
+        it('should clear lingering selected options from DOM during clearSelectedOption', () => {
+            pickle = new Pickle(selectElement);
+            pickle.open();
+            
+            // Manually add selected class to options to simulate lingering state
+            const options = pickle.options;
+            options[0].classList.add('pickle-select__option--selected');
+            options[0].setAttribute('aria-selected', 'true');
+            options[1].classList.add('pickle-select__option--selected'); 
+            options[1].setAttribute('aria-selected', 'true');
+            
+            // Ensure selectedOption is null so we test the cleanup loop
+            pickle.selectedOption = null;
+            
+            // Call clearSelectedOption to trigger cleanup
+            pickle.optionManager.clearSelectedOption();
+            
+            // Verify all options are cleared
+            options.forEach(option => {
+                expect(option.classList.contains('pickle-select__option--selected')).toBe(false);
+                expect(option.getAttribute('aria-selected')).toBeFalsy();
+            });
+        });
+
+        it('should handle selectOptionByValue with DOM element creation', () => {
+            pickle = new Pickle(selectElement);
+            pickle.open();
+            
+            // Call selectOptionByValue directly to cover the lines that set option element classes
+            pickle.optionManager.selectOptionByValue('option1');
+            
+            // Verify the option element was selected properly
+            const selectedOption = pickle.options.find(opt => opt.getAttribute('data-value') === 'option1');
+            expect(selectedOption).toBeTruthy();
+            expect(selectedOption.classList.contains('pickle-select__option--selected')).toBe(true);
+            expect(selectedOption.getAttribute('aria-selected')).toBe('true');
+            expect(pickle.selectedOption).toBe(selectedOption);
+        });
+
+        it('should handle selectOptionByValue with invalid/disabled option', () => {
+            pickle = new Pickle(selectElement);
+            
+            // Try to select a non-existent option
+            const originalSelection = pickle.get();
+            pickle.optionManager.selectOptionByValue('non-existent-option');
+            
+            // Verify nothing changed (early return was triggered)
+            expect(pickle.get()).toBe(originalSelection);
+            
+            // Add a disabled option to test the disabled check
+            pickle.addOption('disabled-option', 'Disabled Option', true, true); // disabled
+            pickle.optionManager.selectOptionByValue('disabled-option');
+            
+            // Verify the disabled option wasn't selected
+            expect(pickle.get()).toBe(originalSelection);
+        });
+
+        it('should handle event dispatch failures gracefully', () => {
+            pickle = new Pickle(selectElement);
+            
+            // Mock console.warn to track calls
+            const consoleSpy = jest.spyOn(console, 'warn').mockImplementation();
+            
+            // Create a pickle instance with debug enabled
+            pickle.debug = true;
+            
+            // Mock dispatchEvent to throw an error
+            const originalDispatchEvent = pickle.wrapper.dispatchEvent;
+            pickle.wrapper.dispatchEvent = jest.fn(() => {
+                throw new Error('Dispatch failed');
+            });
+            
+            // Try to emit an event - should handle the error gracefully
+            const result = pickle.eventSystem.emit('test-event');
+            
+            // Verify error was handled
+            expect(result).toBeNull();
+            expect(consoleSpy).toHaveBeenCalledWith('Event dispatch failed:', expect.any(Error));
+            
+            // Restore original methods
+            pickle.wrapper.dispatchEvent = originalDispatchEvent;
+            consoleSpy.mockRestore();
+        });
+
+        it('should handle emit() when wrapper is null', () => {
+            pickle = new Pickle(selectElement);
+            
+            // Set wrapper to null to simulate the null return case
+            pickle.wrapper = null;
+            
+            // Try to emit an event - should return null gracefully
+            const result = pickle.eventSystem.emit('test-event', { some: 'data' });
+            
+            // Verify null is returned when wrapper is null
+            expect(result).toBeNull();
+        });
+
+        it('should handle option click events properly', () => {
+            pickle = new Pickle(selectElement);
+            pickle.open();
+            
+            // Get a non-placeholder option element (skip the first one which is likely placeholder)
+            const optionElement = pickle.options.find(opt => 
+                opt.getAttribute('data-value') && opt.getAttribute('data-value') !== ''
+            );
+            expect(optionElement).toBeTruthy();
+            const expectedValue = optionElement.getAttribute('data-value');
+            
+            // Mock the toggleOptionSelection method to track calls
+            const toggleSpy = jest.spyOn(pickle.optionManager, 'toggleOptionSelection');
+            
+            // Simulate clicking an option
+            optionElement.click();
+            
+            // Verify toggleOptionSelection was called with correct parameters
+            expect(toggleSpy).toHaveBeenCalledWith(expectedValue, optionElement);
+            
+            toggleSpy.mockRestore();
+        });
+
+        it('should handle disabled option clicks', () => {
+            pickle = new Pickle(selectElement);
+            pickle.open();
+            
+            // Add a disabled option
+            pickle.addOption('disabled-test', 'Disabled Test', true, true);
+            
+            // Find the disabled option element
+            const disabledOption = pickle.options.find(opt => 
+                opt.getAttribute('data-value') === 'disabled-test'
+            );
+            expect(disabledOption).toBeTruthy();
+            expect(disabledOption.classList.contains('pickle-select__option--disabled')).toBe(true);
+            
+            // Mock toggleOptionSelection to ensure it's not called
+            const toggleSpy = jest.spyOn(pickle.optionManager, 'toggleOptionSelection');
+            
+            // Click the disabled option
+            disabledOption.click();
+            
+            // Verify toggleOptionSelection was NOT called for disabled option
+            expect(toggleSpy).not.toHaveBeenCalledWith('disabled-test', disabledOption);
+            
+            toggleSpy.mockRestore();
+        });
+
+        it('should handle document clicks outside wrapper', () => {
+            pickle = new Pickle(selectElement);
+            pickle.open();
+            
+            expect(pickle.isElementOpen()).toBe(true);
+            
+            // Create an element outside the wrapper
+            const outsideElement = document.createElement('div');
+            document.body.appendChild(outsideElement);
+            
+            // Simulate clicking outside
+            const clickEvent = new MouseEvent('click', {
+                bubbles: true,
+                cancelable: true,
+                target: outsideElement
+            });
+            
+            // Manually trigger the document click handler
+            pickle.handleDocumentClick(clickEvent);
+            
+            // Verify dropdown closed
+            expect(pickle.isElementOpen()).toBe(false);
+            
+            // Cleanup
+            document.body.removeChild(outsideElement);
+        });
+
+        it('should handle touchmove events on dropdown', () => {
+            pickle = new Pickle(selectElement);
+            pickle.open();
+            
+            // Create a touchmove event
+            const touchEvent = new TouchEvent('touchmove', {
+                bubbles: true,
+                cancelable: true
+            });
+            
+            // Mock stopPropagation to verify it's called
+            const stopPropagationSpy = jest.spyOn(touchEvent, 'stopPropagation');
+            
+            // Dispatch touchmove on dropdown
+            pickle.dropdown.dispatchEvent(touchEvent);
+            
+            // Verify stopPropagation was called
+            expect(stopPropagationSpy).toHaveBeenCalled();
+        });
+
+        it('should handle navigation with all options disabled', () => {
+            // Create a select with all disabled options
+            const disabledSelect = document.createElement('select');
+            disabledSelect.innerHTML = `
+                <option value="" disabled>Select an option</option>
+                <option value="option1" disabled>Option 1</option>
+                <option value="option2" disabled>Option 2</option>
+            `;
+            document.body.appendChild(disabledSelect);
+            
+            pickle = new Pickle(disabledSelect);
+            pickle.open();
+            
+            // Try to focus previous option when all options are disabled
+            // This should trigger the while loop in focusPreviousOption and hit line 98 (prevIndex--)
+            pickle.keyboardNavigation.focusPreviousOption();
+            
+            // Should not have any focused option since all are disabled
+            expect(pickle.focusedIndex).toBe(-1);
+            expect(pickle.focusedOption).toBeNull();
+            
+            document.body.removeChild(disabledSelect);
+        });
+
+        it('should scroll option into view when dropdown height is limited', () => {
+            // Create a select with many options to force scrolling
+            const scrollSelect = document.createElement('select');
+            let optionsHTML = '<option value="">Select an option</option>';
+            for (let i = 1; i <= 20; i++) {
+                optionsHTML += `<option value="option${i}">Option ${i}</option>`;
+            }
+            scrollSelect.innerHTML = optionsHTML;
+            document.body.appendChild(scrollSelect);
+            
+            pickle = new Pickle(scrollSelect);
+            pickle.open();
+            
+            // Mock the dropdown dimensions to simulate scrolling scenario
+            Object.defineProperty(pickle.dropdown, 'scrollHeight', { value: 500, configurable: true });
+            Object.defineProperty(pickle.dropdown, 'clientHeight', { value: 200, configurable: true });
+            Object.defineProperty(pickle.dropdown, 'scrollTop', { value: 0, writable: true });
+            
+            // Mock an option that's below the visible area
+            const lastOption = pickle.options[pickle.options.length - 1];
+            if (lastOption) {
+                Object.defineProperty(lastOption, 'offsetTop', { value: 400, configurable: true });
+                Object.defineProperty(lastOption, 'offsetHeight', { value: 30, configurable: true });
+                
+                // This should trigger scrolling logic in scrollOptionIntoView
+                pickle.keyboardNavigation.scrollOptionIntoView(lastOption);
+                
+                // Should have scrolled to make option visible
+                expect(pickle.dropdown.scrollTop).toBeGreaterThan(0);
+            }
+            
+            document.body.removeChild(scrollSelect);
+        });
+
+        it('should scroll option into view when option is above visible area', () => {
+            // Create a select with many options
+            const scrollSelect = document.createElement('select');
+            let optionsHTML = '<option value="">Select an option</option>';
+            for (let i = 1; i <= 20; i++) {
+                optionsHTML += `<option value="option${i}">Option ${i}</option>`;
+            }
+            scrollSelect.innerHTML = optionsHTML;
+            document.body.appendChild(scrollSelect);
+            
+            pickle = new Pickle(scrollSelect);
+            pickle.open();
+            
+            // Mock the dropdown dimensions and scroll position
+            Object.defineProperty(pickle.dropdown, 'scrollHeight', { value: 500, configurable: true });
+            Object.defineProperty(pickle.dropdown, 'clientHeight', { value: 200, configurable: true });
+            Object.defineProperty(pickle.dropdown, 'scrollTop', { value: 100, writable: true });
+            
+            // Mock an option that's above the visible area
+            const firstOption = pickle.options[1]; // Skip the placeholder
+            if (firstOption) {
+                Object.defineProperty(firstOption, 'offsetTop', { value: 50, configurable: true });
+                Object.defineProperty(firstOption, 'offsetHeight', { value: 30, configurable: true });
+                
+                // This should trigger scrolling to show option at top
+                pickle.keyboardNavigation.scrollOptionIntoView(firstOption);
+                
+                // Should have scrolled to show the option
+                expect(pickle.dropdown.scrollTop).toBe(50);
+            }
+            
+            document.body.removeChild(scrollSelect);
+        });
+
+        it('should trigger scroll listener for lazy loading', () => {
+            // Create select with many options to test lazy loading scroll
+            const scrollSelect = document.createElement('select');
+            let optionsHTML = '<option value="">Select an option</option>';
+            for (let i = 1; i <= 100; i++) {
+                optionsHTML += `<option value="option${i}">Option ${i}</option>`;
+            }
+            scrollSelect.innerHTML = optionsHTML;
+            document.body.appendChild(scrollSelect);
+            
+            pickle = new Pickle(scrollSelect);
+            pickle.open();
+            
+            // Mock dropdown dimensions to trigger lazy loading
+            Object.defineProperty(pickle.dropdown, 'scrollHeight', { value: 1000, configurable: true });
+            Object.defineProperty(pickle.dropdown, 'clientHeight', { value: 300, configurable: true });
+            Object.defineProperty(pickle.dropdown, 'scrollTop', { value: 650, configurable: true }); // Near bottom
+            
+            // Spy on renderChunk to verify it gets called
+            const renderChunkSpy = jest.spyOn(pickle.optionManager, 'renderChunk');
+            
+            // Manually trigger scroll event (lines 13-18)
+            const scrollEvent = new Event('scroll');
+            pickle.dropdown.dispatchEvent(scrollEvent);
+            
+            // Should have called renderChunk due to being near bottom
+            expect(renderChunkSpy).toHaveBeenCalled();
+            
+            renderChunkSpy.mockRestore();
+            document.body.removeChild(scrollSelect);
+        });
+
+        it('should handle disabled optgroup labels', () => {
+            // Create select with disabled optgroup
+            const optgroupSelect = document.createElement('select');
+            optgroupSelect.innerHTML = `
+                <option value="">Select an option</option>
+                <optgroup label="Disabled Group" disabled>
+                    <option value="disabled1">Disabled Option 1</option>
+                    <option value="disabled2">Disabled Option 2</option>
+                </optgroup>
+                <optgroup label="Enabled Group">
+                    <option value="enabled1">Enabled Option 1</option>
+                </optgroup>
+            `;
+            document.body.appendChild(optgroupSelect);
+            
+            pickle = new Pickle(optgroupSelect);
+            pickle.open();
+            
+            // Find the disabled optgroup label in the rendered options
+            const disabledGroup = pickle.dropdown.querySelector('.pickle-select__optgroup-label--disabled');
+            expect(disabledGroup).toBeTruthy();
+            expect(disabledGroup.textContent).toBe('Disabled Group');
+            
+            document.body.removeChild(optgroupSelect);
+        });
+
+        it('should return false when no more options to load', () => {
+            // Create select with limited options
+            const limitedSelect = document.createElement('select');
+            limitedSelect.innerHTML = `
+                <option value="">Select an option</option>
+                <option value="option1">Option 1</option>
+                <option value="option2">Option 2</option>
+            `;
+            document.body.appendChild(limitedSelect);
+            
+            pickle = new Pickle(limitedSelect);
+            pickle.open();
+            
+            // All options should already be loaded, so loadMoreOptions should return false (line 88)
+            const result = pickle.optionManager.loadMoreOptions();
+            expect(result).toBe(false);
+            
+            document.body.removeChild(limitedSelect);
+        });
+
+        it('should handle multi-select empty selection state', () => {
+            // Create multi-select
+            const multiSelect = document.createElement('select');
+            multiSelect.multiple = true;
+            multiSelect.innerHTML = `
+                <option value="option1">Option 1</option>
+                <option value="option2">Option 2</option>
+                <option value="option3">Option 3</option>
+            `;
+            document.body.appendChild(multiSelect);
+            
+            pickle = new Pickle(multiSelect);
+            
+            // Select multiple options first
+            pickle.set(['option1', 'option2']);
+            expect(pickle.get()).toEqual(['option1', 'option2']);
+            
+            // Now deselect all options one by one to trigger empty selection logic (lines 192-194)
+            pickle.optionManager.toggleOptionSelection('option1');
+            pickle.optionManager.toggleOptionSelection('option2');
+            
+            // Should have added empty string when all options deselected
+            expect(pickle.selectedOptions.has('')).toBe(true);
+            expect(pickle.selectedOptions.size).toBe(1);
+            
+            document.body.removeChild(multiSelect);
         });
     });
 });

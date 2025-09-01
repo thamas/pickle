@@ -6,10 +6,8 @@ Thumbs.db
 .vscode/
 coverage/
 *.log
+package-lock.json
 
-# not ready yet
-demo/*
-src/modules/
+
 src/themes/icon-share/
 src/themes/landing-page/
-package-lock.json

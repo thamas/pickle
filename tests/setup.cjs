@@ -116,21 +116,23 @@ const mockedConsole = {
     debug: jest.fn(),
 };
 
-beforeAll(() => {
-    global.console = mockedConsole;
-});
-
 beforeEach(async () => {
     jest.clearAllMocks();
     document.body.innerHTML = '';
-    
+
     global.Pickle.vars.container = document.createElement('div');
     document.body.appendChild(global.Pickle.vars.container);
     
+    jest.spyOn(console, 'log').mockImplementation(() => {});
+    jest.spyOn(console, 'error').mockImplementation(() => {});
+    jest.spyOn(console, 'warn').mockImplementation(() => {});
+    jest.spyOn(console, 'info').mockImplementation(() => {});
+
     await global.Pickle.helpers.cleanupPickleInstances();
 });
 
 afterEach(async () => {
+    jest.clearAllMocks();
     await global.Pickle.helpers.cleanupPickleInstances();
     document.body.innerHTML = '';
 });
