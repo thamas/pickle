@@ -541,24 +541,21 @@ export default class Pickle {
         if (!theme || theme === previous) return;
         this.theme = theme;
 
-        // Update wrapper classes: remove any existing theme-* classes then add the new one.
         if (this.wrapper) {
-            const prefix = 'pickle-select--theme-';
-            // remove any classes that start with the theme prefix
+            const prefix = 'pickle-select--';
             Array.from(this.wrapper.classList).forEach(c => {
-                if (c.startsWith(prefix)) this.wrapper.classList.remove(c);
+                if (c.startsWith(prefix) && c !== 'pickle-select') {
+                    this.wrapper.classList.remove(c);
+                }
             });
-            // add new theme class and data attribute for CSS hooks
             this.wrapper.classList.add(`${prefix}${theme}`);
             this.wrapper.setAttribute('data-pickle-theme', theme);
         }
 
-        // Try a light refresh - does not rebuild the whole widget.
         if (this.domManager && typeof this.domManager.refreshDropdownView === 'function') {
             try {
                 this.domManager.refreshDropdownView();
             } catch (e) {
-                // If refresh fails, log and fall back to recommending reinit
                 this.utils.log('error', 'Theme refresh failed, destroy+reinit may be required', e);
             }
         }
