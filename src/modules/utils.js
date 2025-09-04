@@ -91,7 +91,7 @@ export default class PickleUtils {
      */
     getOnChange(onChange) {
         if (onChange && typeof onChange !== 'function') {
-            if (this.p.debug) this.p.utils.log('error', 'onChange must be a function');
+            if (this.p.debug) this.log('error', 'onChange must be a function');
             throw new Error('onChange must be a function', { cause: new Error('Invalid onChange callback') });
         }
         return onChange;
@@ -115,7 +115,7 @@ export default class PickleUtils {
                 return [];
             }
         }
-        if (this.p.debug) this.p.utils.log('error', 'defaultValue must be a string or an array of strings');
+        if (this.p.debug) this.log('error', 'defaultValue must be a string or an array of strings');
         throw new Error('defaultValue must be a string or an array of strings', { cause: new Error('Invalid defaultValue') });
     }
 }
