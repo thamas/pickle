@@ -42,6 +42,10 @@ Pickle is built with accessibility as a first-class citizen:
 - Keyboard-only operation support
 - Screen reader announcements for state changes
 
+## Documentation
+
+Full documentation is available at [picklejs.dev/docs](https://picklejs.dev/docs).
+
 ## Quick Start
 
 ### Installation
@@ -79,10 +83,6 @@ Or use a CDN:
 - https://cdn.jsdelivr.net/npm/pickle-select@1.1.0/dist/theme/skeuomorphic/skeuomorphic.min.css
 - https://cdn.jsdelivr.net/npm/pickle-select@1.1.0/dist/theme/glassmorphic/glassmorphic.min.css
 
-
-## Documentation
-
-Full documentation is available at [picklejs.dev/docs](https://picklejs.dev/docs).
 
 ## Building and Development
 
