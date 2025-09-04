@@ -12,20 +12,20 @@ A lightweight, dependency-free, and fully accessible custom select component wit
 
 Native `<select>` elements are about as customizable as a brick wall and twice as frustrating. After years of wrestling with select styling and accessibility, I built Pickle to be the select component I always wanted to use.
 
-## ✨ Features
+## Features
 
-- **🪶 Featherlight**: Zero dependencies, minimal footprint (~26KB minified, ~6KB gzipped)
-- **♿ Accessible by default**: Full WAI-ARIA support, keyboard navigation, screen reader friendly
-- **🤖 Future-proof**: Rich programmatic API built for today's humans and tomorrow's cyborgs
-- **🎨 Highly themeable**: CSS custom properties with 6 included themes
-- **🔍 Smart search**: Built-in filtering with fuzzy search support
-- **📱 Touch-friendly**: Optimized for mobile and touch devices
-- **⚡ Performance-focused**: Virtual scrolling handles thousands of options smoothly
-- **🛡️ Secure**: Built-in XSS protection and input sanitization
-- **🌐 Multi-select**: Single and multiple selection modes
-- **🔧 Rich API**: Comprehensive methods for dynamic manipulation
+- **Featherlight**: Zero dependencies, minimal footprint (~26KB minified, ~6KB gzipped)
+- **Accessible by default**: Full WAI-ARIA support, keyboard navigation, screen reader friendly
+- **Future-proof**: Rich programmatic API built for today's humans and tomorrow's cyborgs
+- **Highly themeable**: CSS custom properties with 6 included themes
+- **Smart search**: Built-in filtering with fuzzy search support
+- **Touch-friendly**: Optimized for mobile and touch devices
+- **Performance-focused**: Virtual scrolling handles thousands of options smoothly
+- **Secure**: Built-in XSS protection and input sanitization
+- **Multi-select**: Single and multiple selection modes
+- **Rich API**: Comprehensive methods for dynamic manipulation
 
-## ♿ Accessibility
+## Accessibility
 
 Pickle is built with accessibility as a first-class citizen:
 
@@ -42,7 +42,7 @@ Pickle is built with accessibility as a first-class citizen:
 - Keyboard-only operation support
 - Screen reader announcements for state changes
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Installation
 
@@ -53,262 +53,38 @@ npm install pickle-select
 Or use a CDN:
 
 ```html
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pickle-select@1.0.0/dist/pickle.min.css">
-<script src="https://cdn.jsdelivr.net/npm/pickle-select@1.0.0/dist/pickle.min.js" type="module"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pickle-select@1.1.0/dist/pickle.min.css">
+
+<!-- UMD Version -->
+<script src="https://cdn.jsdelivr.net/npm/pickle-select@1.1.0/dist/pickle.umd.min.js"></script>
+<script>
+    const pickle = new Pickle('#my-select', { debug: true });
+</script>
+
+<!-- ESM Version -->
+<script type="module">
+    import Pickle from 'https://cdn.jsdelivr.net/npm/pickle-select@1.1.0/dist/pickle.esm.min.js';
+    const pickle = new Pickle('#my-select', { debug: true });
+</script>
 ```
 
 #### Available from CDN:
-- https://cdn.jsdelivr.net/npm/pickle-select@1.0.0/dist/pickle.min.js
-- https://cdn.jsdelivr.net/npm/pickle-select@1.0.0/dist/pickle.min.css
-- https://cdn.jsdelivr.net/npm/pickle-select@1.0.0/dist/theme/material/material.min.css
-- https://cdn.jsdelivr.net/npm/pickle-select@1.0.0/dist/theme/brutalist/brutalist.min.css
-- https://cdn.jsdelivr.net/npm/pickle-select@1.0.0/dist/theme/minimalist/mnml.min.css
-- https://cdn.jsdelivr.net/npm/pickle-select@1.0.0/dist/theme/neumorphic/neumorphic.min.css
-- https://cdn.jsdelivr.net/npm/pickle-select@1.0.0/dist/theme/skeuomorphic/skeuomorphic.min.css
-- https://cdn.jsdelivr.net/npm/pickle-select@1.0.0/dist/theme/glassmorphic/glassmorphic.min.css
+- https://cdn.jsdelivr.net/npm/pickle-select@1.1.0/dist/pickle.esm.min.js
+- https://cdn.jsdelivr.net/npm/pickle-select@1.1.0/dist/pickle.umd.min.js
+- https://cdn.jsdelivr.net/npm/pickle-select@1.1.0/dist/pickle.min.css
+- https://cdn.jsdelivr.net/npm/pickle-select@1.1.0/dist/theme/material/material.min.css
+- https://cdn.jsdelivr.net/npm/pickle-select@1.1.0/dist/theme/brutalist/brutalist.min.css
+- https://cdn.jsdelivr.net/npm/pickle-select@1.1.0/dist/theme/minimalist/mnml.min.css
+- https://cdn.jsdelivr.net/npm/pickle-select@1.1.0/dist/theme/neumorphic/neumorphic.min.css
+- https://cdn.jsdelivr.net/npm/pickle-select@1.1.0/dist/theme/skeuomorphic/skeuomorphic.min.css
+- https://cdn.jsdelivr.net/npm/pickle-select@1.1.0/dist/theme/glassmorphic/glassmorphic.min.css
 
 
-### Basic Usage
+## Documentation
 
-```html
-<select id="my-select">
-  <option value="apple">Apple</option>
-  <option value="banana">Banana</option>
-  <option value="cherry">Cherry</option>
-</select>
-```
+Full documentation is available at [picklejs.dev/docs](https://picklejs.dev/docs).
 
-```javascript
-import Pickle from 'pickle-select';
-
-const picker = new Pickle('#my-select', {
-  searchable: true,
-  theme: 'default'
-});
-```
-
-That's it! Your select is now a beautiful, accessible Pickle component.
-
-## 🎛️ Configuration Options
-
-```javascript
-new Pickle('#my-select', {
-  // Appearance
-  theme: 'default',           // Theme name
-  width: '100%',              // Component width
-  height: null,               // Component height
-  
-  // Behavior
-  searchable: false,          // Enable search filtering
-  fuzzySearch: false,         // Enable fuzzy search
-  multiple: false,            // Multi-select mode
-  disabled: false,            // Disabled state
-  
-  // Data
-  defaultValue: null,         // Initial value(s)
-  
-  // Callbacks
-  onChange: null,             // Selection change callback
-  
-  // Localization
-  l10n: {
-    placeholder: 'Select an option',
-    searchPlaceholder: 'Search options...',
-    // ... more strings
-  },
-  
-  // Development
-  debug: false               // Enable debug logging
-});
-```
-
-## 🎨 Themes
-
-Pickle comes with several professionally designed themes you can apply with the `theme` option:
-
-- `default` - Clean and modern
-- `material` - Material Design inspired
-- `brutalist` - Bold and striking
-- `minimalist` - Ultra-clean design
-- `neumorphic` - Soft, 3D appearance
-- `glassmorphic` - Frosted glass effect
-- `skeuomorphic` - Real-world textures
-
-To use a built-in theme, link its stylesheet from the CDN (or your local `dist/theme/` folder) and specify its name in the options. This adds the necessary class to the component wrapper.
-
-**Link the theme CSS in your HTML `<head>`:**
-```html
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pickle-select@1.0.0/dist/theme/material/material.min.css">
-```
-```js
-new Pickle('#my-select', { theme: 'material' });
-```
-
-### Custom Themes
-
-Create your own theme using CSS custom properties:
-
-```css
-/* In your own stylesheet */
-.pickle-select--my-theme {
-  --pickle-border-radius: 12px;
-  --pickle-font-size: 16px;
-  --pickle-bg: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  --pickle-text-color: white;
-  
-  /* Override the arrow color for the new background */
-  --pickle-arrow-color: white; 
-}
-```
-```js
-// The theme name 'my-theme' matches the CSS class '.pickle-select--my-theme'
-new Pickle('#styled-select', { theme: 'my-theme' });
-```
-
-## 📚 API Reference
-
-### Constructor
-
-```javascript
-new Pickle(elementOrID, options)
-```
-
-- `elementOrID`: HTMLSelectElement or string ID
-- `options`: Configuration object (optional)
-
-### Methods
-
-#### Selection Methods
-
-```javascript
-// Get current value(s)
-picker.get()                    // Returns string or array
-
-// Set value(s)
-picker.set('value')             // Single select
-picker.set(['val1', 'val2'])    // Multi-select
-
-// Clear selection
-picker.clear()                  // Clear all selections
-
-// Get selected option elements
-picker.getOption()              // Returns HTMLElement or array
-
-// Get selected text
-picker.getText()                // Returns string or array
-```
-
-#### Option Management
-
-```javascript
-// Add option
-picker.addOption('value', 'text', index, disabled)
-
-// Remove option
-picker.removeOption('value')
-
-// Update all options
-picker.updateOptions([
-  { value: 'val1', text: 'Text 1', disabled: false },
-  { value: 'val2', text: 'Text 2', disabled: true }
-])
-
-// Get all options
-picker.getOptions()             // Returns array of option objects
-```
-
-#### State Management
-
-```javascript
-// Control dropdown
-picker.open()                   // Open dropdown
-picker.close()                  // Close dropdown
-picker.toggle()                 // Toggle open/closed
-
-// Check state
-picker.isElementOpen()          // Returns boolean
-picker.isDisabled()             // Returns boolean
-
-// Control features
-picker.setDisabled(true)        // Enable/disable
-picker.setSearchable(true)      // Enable/disable search
-picker.setRequired(true)        // Set required state
-```
-
-#### Validation
-
-```javascript
-// Validation
-picker.getValidationState()     // Returns validation object
-picker.setCustomValidity('message')  // Set custom validation
-```
-
-#### Lifecycle
-
-```javascript
-// Cleanup
-picker.destroy()                // Remove component and cleanup
-```
-
-### Events
-
-Pickle emits custom events you can listen for:
-
-```javascript
-picker.wrapper.addEventListener('pickle:change', (e) => {
-  console.log('Value changed:', e.detail.value);
-});
-
-picker.wrapper.addEventListener('pickle:open', (e) => {
-  console.log('Dropdown opened');
-});
-
-picker.wrapper.addEventListener('pickle:search', (e) => {
-  console.log('Search term:', e.detail.term);
-});
-```
-
-Available events:
-- `pickle:change` - Selection changed
-- `pickle:open` / `pickle:close` - Dropdown state
-- `pickle:search` - Search performed
-- `pickle:optionAdded` / `pickle:optionRemoved` - Options modified
-- `pickle:destroyed` - Component destroyed
-
-## 🎯 Advanced Examples
-
-### Multi-select with Search
-
-```javascript
-const picker = new Pickle('#multi-select', {
-  multiple: true,
-  searchable: true,
-  fuzzySearch: true,
-  onChange: (values, { text }) => {
-    console.log('Selected:', values, text);
-  }
-});
-```
-
-### Dynamic Options
-
-```javascript
-const picker = new Pickle('#dynamic-select');
-
-// Add options dynamically
-fetch('/api/options')
-  .then(res => res.json())
-  .then(options => {
-    picker.updateOptions(options);
-  });
-
-// Listen for changes
-picker.wrapper.addEventListener('pickle:change', (e) => {
-  // Update related dropdowns, etc.
-});
-```
-
-## 🏗️ Building and Development
+## Building and Development
 
 ```bash
 # Clone the repository
@@ -328,7 +104,7 @@ npm run test:watch
 npm run test:coverage
 ```
 
-## 🤝 Contributing
+## Contributing
 
 I'd love your help making Pickle better! Please follow these guidelines:
 
@@ -385,13 +161,13 @@ I'd love your help making Pickle better! Please follow these guidelines:
    git push origin feature/your-feature-name
    ```
 
-### 💡 Before You Start
+### Before You Start
 
 - Check existing [issues](https://github.com/gh-o-st/pickle/issues) and [PRs](https://github.com/gh-o-st/pickle/pulls)
 - For major changes, please open an issue first to discuss
 - Questions? Feel free to ask in an issue!
 
 
-## 📄 License
+## License
 
 Pickle is released under the [Mozilla Public License 2.0](LICENSE).
