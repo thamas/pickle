@@ -60,7 +60,7 @@ export default class PickleOptions {
             optionElement.setAttribute('data-value', optionData.value);
 
             optionElement.setAttribute('role', 'option');
-            optionElement.id = `${this.p.baseID}__option-${this.p.incrementCounter()}`;
+            optionElement.id = `${this.p.id}__option-${this.p.incrementCounter()}`;
 
             if (optionData.disabled) {
                 optionElement.classList.add('pickle-select__option--disabled');

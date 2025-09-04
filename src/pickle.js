@@ -454,7 +454,6 @@ export default class Pickle {
 
         if (option) {
             option.remove();
-
             if (wasSelected) {
                 if (this.isMultiple) {
                     this.selectedOptions.delete(value);
@@ -466,7 +465,6 @@ export default class Pickle {
 
             this.optionManager.cacheOptions();
             this.domManager.refreshDropdownView();
-
             this.eventSystem.emit('optionRemoved', { value });
             this.utils.log('log', 'Option removed:', value);
         }
@@ -527,6 +525,46 @@ export default class Pickle {
         } else if (!searchable && this.searchInput) {
             this.searchInput.remove();
             this.searchInput = null;
+        }
+    }
+    
+    /**
+     * Sets the theme for this Pickle instance at runtime.
+     * If the theme only changes CSS, this will swap theme classes on the wrapper
+     * and call a light refresh of the dropdown view. If your theme changes markup
+     * or templates at init-time, you may still need to destroy and reinitialize.
+     *
+     * @param {string} theme - The new theme name.
+     */
+    setTheme(theme) {
+        const previous = this.theme;
+        if (!theme || theme === previous) return;
+        this.theme = theme;
+
+        // Update wrapper classes: remove any existing theme-* classes then add the new one.
+        if (this.wrapper) {
+            const prefix = 'pickle-select--theme-';
+            // remove any classes that start with the theme prefix
+            Array.from(this.wrapper.classList).forEach(c => {
+                if (c.startsWith(prefix)) this.wrapper.classList.remove(c);
+            });
+            // add new theme class and data attribute for CSS hooks
+            this.wrapper.classList.add(`${prefix}${theme}`);
+            this.wrapper.setAttribute('data-pickle-theme', theme);
+        }
+
+        // Try a light refresh - does not rebuild the whole widget.
+        if (this.domManager && typeof this.domManager.refreshDropdownView === 'function') {
+            try {
+                this.domManager.refreshDropdownView();
+            } catch (e) {
+                // If refresh fails, log and fall back to recommending reinit
+                this.utils.log('error', 'Theme refresh failed, destroy+reinit may be required', e);
+            }
+        }
+
+        if (this.eventSystem) {
+            this.eventSystem.emit('themeChanged', { theme, previous });
         }
     }
 
