@@ -214,19 +214,19 @@ export default class PickleDOM {
                 selectedValues.forEach(value => {
                     const optionData = this.p.sourceOptions.find(opt => !opt.isGroupLabel && opt.value === value);
                     if (optionData) {
-                        const tag = this.createElement('span', 'pickle-select__tag');
-
-                        tag.textContent = optionData.text; 
-
-                        const removeBtn = this.createElement('button', 'pickle-select__tag-remove');
-                        removeBtn.type = 'button';
-                        removeBtn.innerHTML = '&times;';
+                        const tag = this.createElement('button', 'pickle-select__tag');
+                        tag.type = 'button';
 
                         const sanitizer = document.createElement('div');
                         sanitizer.textContent = optionData.text;
-                        removeBtn.setAttribute('aria-label', `Remove ${sanitizer.innerHTML}`);
 
-                        removeBtn.addEventListener('click', e => {
+                        tag.textContent = optionData.text;
+                        tag.setAttribute('aria-label', `Remove ${sanitizer.innerHTML}`);
+
+                        const removeBtn = this.createElement('span', 'pickle-select__tag-remove');
+                        removeBtn.innerHTML = '&times;';
+
+                        tag.addEventListener('click', e => {
                             e.stopPropagation();
                             this.p.optionManager.toggleOptionSelection(value);
                         });
