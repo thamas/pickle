@@ -207,6 +207,38 @@ describe('Pickle Accessibility Tests', () => {
             expect(pickle.focusedIndex).toBe(pickle.options.length - 1);
         });
 
+        it('should keep the last option focused on ArrowDown at the end', () => {
+            pickle.open();
+            pickle.trigger.dispatchEvent(new KeyboardEvent('keydown', { key: 'End' }));
+            const lastOption = pickle.focusedOption;
+
+            pickle.trigger.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown' }));
+
+            expect(pickle.focusedOption).toBe(lastOption);
+            expect(lastOption.classList.contains('pickle-select__option--focused')).toBe(true);
+            expect(pickle.trigger.getAttribute('aria-activedescendant')).toBe(lastOption.id);
+
+            pickle.trigger.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowUp' }));
+            expect(pickle.focusedIndex).toBeLessThan(pickle.options.indexOf(lastOption));
+            expect(lastOption.classList.contains('pickle-select__option--focused')).toBe(false);
+        });
+
+        it('should keep the first option focused on ArrowUp at the start', () => {
+            pickle.open();
+            pickle.trigger.dispatchEvent(new KeyboardEvent('keydown', { key: 'Home' }));
+            const firstOption = pickle.focusedOption;
+
+            pickle.trigger.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowUp' }));
+
+            expect(pickle.focusedOption).toBe(firstOption);
+            expect(firstOption.classList.contains('pickle-select__option--focused')).toBe(true);
+            expect(pickle.trigger.getAttribute('aria-activedescendant')).toBe(firstOption.id);
+
+            pickle.trigger.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown' }));
+            expect(pickle.focusedIndex).toBeGreaterThan(pickle.options.indexOf(firstOption));
+            expect(firstOption.classList.contains('pickle-select__option--focused')).toBe(false);
+        });
+
         it('should select option with Enter when focused', () => {
             pickle.open();
             pickle.trigger.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown' }));

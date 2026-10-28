@@ -71,12 +71,12 @@ export default class PickleNavigation {
      * @returns {void}
      */
     focusNextOption() {
-        this.p.domManager.clearFocusedOption();
         let nextIndex = this.p.focusedIndex > -1 ? this.p.focusedIndex + 1 : 0;
 
         while (nextIndex < this.p.options.length) {
             const option = this.p.options[nextIndex];
             if (option.getAttribute('role') === 'option' && !option.classList.contains('pickle-select__option--disabled')) {
+                this.p.domManager.clearFocusedOption();
                 this.p.focusedIndex = nextIndex;
                 this.p.focusedOption = option;
                 option.classList.add('pickle-select__option--focused');
@@ -96,12 +96,12 @@ export default class PickleNavigation {
      * @returns {void}
      */
     focusPreviousOption() {
-        this.p.domManager.clearFocusedOption();
         let prevIndex = this.p.focusedIndex > -1 ? this.p.focusedIndex - 1 : this.p.options.length -1;
 
         while (prevIndex >= 0) {
             const option = this.p.options[prevIndex];
             if (option.getAttribute('role') === 'option' && !option.classList.contains('pickle-select__option--disabled')) {
+                this.p.domManager.clearFocusedOption();
                 this.p.focusedIndex = prevIndex;
                 this.p.focusedOption = option;
                 option.classList.add('pickle-select__option--focused');
