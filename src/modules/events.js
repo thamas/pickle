@@ -41,7 +41,8 @@ export default class PickleEvents {
         this.p.trigger.addEventListener('click', (e) => {
             e.preventDefault();
             if (!this.p.disabled) {
-                this.p.toggle();
+                // Mouse users highlight options by hovering; a focused option would compete with it.
+                this.p.toggle({ focusOption: false });
             }
         });
 

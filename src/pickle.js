@@ -93,6 +93,7 @@ export default class Pickle {
             this.selectedOptions = new Set();
             this.focusedOption = null;
             this.focusedIndex = -1;
+            this.openedWithoutFocus = false;
             this.searchInput = null;
             this.options = [];
             this.optionsList = null;
@@ -138,8 +139,11 @@ export default class Pickle {
 
     /**
      * Opens the dropdown menu, sets its state to open, and updates relevant ARIA attributes.
+     *
+     * @param {Object} [options={}]
+     * @param {boolean} [options.focusOption=true] - Whether to focus the selected (or first) option.
      */
-    open() {
+    open({ focusOption = true } = {}) {
         if (!this.wrapper || this.disabled) return;
 
         const event = this.eventSystem.emit('beforeOpen');
@@ -161,7 +165,10 @@ export default class Pickle {
             }, 0);
         }
 
-        this.domManager.focusSelectedOption();
+        this.openedWithoutFocus = !focusOption;
+        if (focusOption) {
+            this.domManager.focusSelectedOption();
+        }
 
         this.eventSystem.emit('open');
         this.utils.log('log', 'Dropdown opened');
@@ -195,9 +202,11 @@ export default class Pickle {
 
     /**
      * Toggles the open/close state.
+     *
+     * @param {Object} [options] - Passed to open().
      */
-    toggle() {
-        this.isOpen ? this.close() : this.open();
+    toggle(options) {
+        this.isOpen ? this.close() : this.open(options);
     }
 
     /**

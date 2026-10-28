@@ -23,7 +23,7 @@ export default class PickleDOM {
      * - If multiple selection is enabled, focuses the first selected value.
      * - If the selected value exists in the DOM, updates the focused index and option,
      *   adds the focused class, sets ARIA attributes, and scrolls the option into view.
-     * - If the selected value is not found, logs a warning (if debug is enabled).
+     * - If the selected value is not found, logs a warning (if debug is enabled) and focuses the first option.
      * - If no value is selected, focuses the first option.
      */
     focusSelectedOption() {
@@ -43,6 +43,7 @@ export default class PickleDOM {
                 if (this.p.debug) {
                     this.p.utils.log('warn', 'Selected value not found in DOM --> failed to focus', firstSelectedValue);
                 }
+                this.p.keyboardNavigation.focusFirstOption();
             }
         } else {
             this.p.keyboardNavigation.focusFirstOption();
@@ -295,6 +296,7 @@ export default class PickleDOM {
         this.p.optionsList.innerHTML = '';
         this.p.options = [];
         this.p.focusedIndex = -1;
+        this.p.openedWithoutFocus = false;
         this.clearFocusedOption();
         this.p.optionManager.renderChunk();
     }

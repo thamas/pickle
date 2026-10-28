@@ -36,6 +36,8 @@ export default class PickleNavigation {
                 e.preventDefault();
                 if (!this.p.isOpen) {
                     this.p.open();
+                } else if (this.p.openedWithoutFocus && this.p.focusedIndex === -1) {
+                    this.p.domManager.focusSelectedOption();
                 } else {
                     this.focusNextOption();
                 }
@@ -44,6 +46,8 @@ export default class PickleNavigation {
                 e.preventDefault();
                 if (!this.p.isOpen) {
                     this.p.open();
+                } else if (this.p.openedWithoutFocus && this.p.focusedIndex === -1) {
+                    this.p.domManager.focusSelectedOption();
                 } else {
                     this.focusPreviousOption();
                 }

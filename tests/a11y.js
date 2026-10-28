@@ -298,6 +298,77 @@ describe('Pickle Accessibility Tests', () => {
             expect(pickle.focusedIndex).toBe(0);
         });
 
+        it('should not focus an option when opened by click', () => {
+            pickle.set('option4');
+            pickle.trigger.click();
+
+            expect(pickle.isOpen).toBe(true);
+            expect(pickle.focusedOption).toBeNull();
+            expect(pickle.dropdown.querySelector('.pickle-select__option--focused')).toBeNull();
+            expect(pickle.trigger.hasAttribute('aria-activedescendant')).toBe(false);
+        });
+
+        it.each(['Enter', 'ArrowDown'])('should focus selected option when opened with %s', (key) => {
+            pickle.set('option4');
+            pickle.trigger.dispatchEvent(new KeyboardEvent('keydown', { key }));
+
+            expect(pickle.focusedOption.getAttribute('data-value')).toBe('option4');
+            expect(pickle.trigger.getAttribute('aria-activedescendant')).toBe(pickle.focusedOption.id);
+        });
+
+        it.each(['Enter', 'ArrowDown'])('should focus first option when opened with %s and no selection', (key) => {
+            pickle.trigger.dispatchEvent(new KeyboardEvent('keydown', { key }));
+
+            expect(pickle.focusedIndex).toBe(0);
+            expect(pickle.trigger.getAttribute('aria-activedescendant')).toBe(pickle.focusedOption.id);
+        });
+
+        it('should focus selected option on first ArrowDown after click open', () => {
+            pickle.set('option4');
+            pickle.trigger.click();
+            pickle.trigger.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown' }));
+
+            expect(pickle.focusedOption.getAttribute('data-value')).toBe('option4');
+        });
+
+        it('should focus first option on first ArrowDown after click open with no selection', () => {
+            pickle.trigger.click();
+            pickle.trigger.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown' }));
+
+            expect(pickle.focusedIndex).toBe(0);
+            expect(pickle.trigger.getAttribute('aria-activedescendant')).toBe(pickle.focusedOption.id);
+        });
+
+        it('should focus selected option on first ArrowUp after click open', () => {
+            pickle.set('option4');
+            pickle.trigger.click();
+            pickle.trigger.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowUp' }));
+
+            expect(pickle.focusedOption.getAttribute('data-value')).toBe('option4');
+        });
+
+        it('should focus first option on first ArrowUp after click open with no selection', () => {
+            pickle.trigger.click();
+            pickle.trigger.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowUp' }));
+
+            expect(pickle.focusedIndex).toBe(0);
+        });
+
+        it.each([
+            ['ArrowDown', () => 0],
+            ['ArrowUp', () => pickle.options.length - 1]
+        ])('should move %s from the edge of search results, not to the selection', (key, expectedIndex) => {
+            pickle.setSearchable(true);
+            pickle.set('option4');
+            pickle.trigger.click();
+            pickle.searchInput.value = 'Option';
+            pickle.searchInput.dispatchEvent(new Event('input'));
+            pickle.trigger.dispatchEvent(new KeyboardEvent('keydown', { key }));
+
+            expect(pickle.focusedIndex).toBe(expectedIndex());
+            expect(pickle.focusedOption.getAttribute('data-value')).not.toBe('option4');
+        });
+
         it('should maintain tabindex on trigger', () => {
             expect(pickle.trigger.getAttribute('tabindex')).toBe('0');
             
