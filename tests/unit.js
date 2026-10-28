@@ -1224,13 +1224,12 @@ describe('Pickle Unit Tests', () => {
             pickle.set(['option1', 'option2']);
             expect(pickle.get()).toEqual(['option1', 'option2']);
             
-            // Now deselect all options one by one to trigger empty selection logic (lines 192-194)
+            // Now deselect all options one by one
             pickle.optionManager.toggleOptionSelection('option1');
             pickle.optionManager.toggleOptionSelection('option2');
-            
-            // Should have added empty string when all options deselected
-            expect(pickle.selectedOptions.has('')).toBe(true);
-            expect(pickle.selectedOptions.size).toBe(1);
+
+            expect(pickle.get()).toEqual([]);
+            expect(pickle.valueDisplay.textContent).toBe(pickle.domManager.getPlaceholderText());
             
             document.body.removeChild(multiSelect);
         });

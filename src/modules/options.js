@@ -217,9 +217,6 @@ export default class PickleOptions {
             const isSelected = this.p.selectedOptions.has(value);
             if (isSelected) {
                 this.p.selectedOptions.delete(value);
-                if (this.p.selectedOptions.size === 0) {
-                    this.p.selectedOptions.add('');
-                }
             } else {
                 if (value !== '') {
                     this.p.selectedOptions.delete('');
