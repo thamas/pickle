@@ -21,7 +21,8 @@ export default class Pickle {
         selectionCleared: 'Selection cleared',
         selected: 'Selected: {text}',
         multipleSelection: '{count} options selected',
-        ariaLabel: 'Select an option'
+        ariaLabel: 'Select an option',
+        removeTag: 'Remove {text}'
     };
 
     #sourceOptions = []; // The true source of all options
@@ -509,6 +510,7 @@ export default class Pickle {
             this.trigger.setAttribute('tabindex', '0');
             this.wrapper.classList.remove('pickle-select--disabled');
         }
+        this.domManager.updateValueDisplay();
 
         this.eventSystem.emit('disabledChanged', { disabled });
     }

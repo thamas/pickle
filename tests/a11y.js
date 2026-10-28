@@ -399,6 +399,124 @@ describe('Pickle Accessibility Tests', () => {
         });
     });
 
+    describe('Removable Tags', () => {
+        const getTags = () => Array.from(pickle.valueDisplay.querySelectorAll('.pickle-select__tag'));
+        const pressKey = (el, key) => {
+            const keydown = new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true });
+            el.dispatchEvent(keydown);
+            // jsdom does not activate buttons on Enter/Space, so fire the click a browser would.
+            if (!keydown.defaultPrevented) el.click();
+            return keydown;
+        };
+
+        beforeEach(() => {
+            selectElement.multiple = true;
+        });
+
+        it('should render each tag as a button named after its option', () => {
+            pickle = new Pickle(selectElement);
+            pickle.set(['option1', 'option2']);
+
+            const tags = getTags();
+            expect(tags).toHaveLength(2);
+            tags.forEach(tag => expect(tag.tagName).toBe('BUTTON'));
+            expect(tags[0]).toHaveAccessibleName('Remove Option 1');
+            expect(tags[1]).toHaveAccessibleName('Remove Option 2');
+        });
+
+        it('should use the removeTag l10n string', () => {
+            pickle = new Pickle(selectElement, { l10n: { removeTag: '{text} entfernen' } });
+            pickle.set(['option1']);
+
+            expect(getTags()[0]).toHaveAccessibleName('Option 1 entfernen');
+        });
+
+        it('should not escape special characters in the accessible name', () => {
+            selectElement.options[1].textContent = 'A & B';
+            pickle = new Pickle(selectElement);
+            pickle.set(['option1']);
+
+            expect(getTags()[0]).toHaveAccessibleName('Remove A & B');
+        });
+
+        it('should remove the option when its tag is clicked', () => {
+            pickle = new Pickle(selectElement);
+            pickle.set(['option1', 'option2']);
+
+            getTags()[0].click();
+
+            expect(pickle.get()).toEqual(['option2']);
+            expect(pickle.isOpen).toBe(false);
+        });
+
+        it.each([['Enter'], [' ']])('should remove a focused tag with %p without toggling the dropdown', (key) => {
+            pickle = new Pickle(selectElement);
+            pickle.set(['option1', 'option2']);
+
+            const tag = getTags()[0];
+            tag.focus();
+            const keydown = pressKey(tag, key);
+
+            expect(keydown.defaultPrevented).toBe(false);
+            expect(pickle.isOpen).toBe(false);
+            expect(pickle.get()).toEqual(['option2']);
+        });
+
+        it('should move focus to the next tag, then the previous tag, then the trigger', () => {
+            // Without an empty option, so removing the last tag leaves no placeholder tag.
+            selectElement.querySelector('option[value=""]').remove();
+            pickle = new Pickle(selectElement);
+            pickle.set(['option1', 'option2', 'option4']);
+
+            getTags()[1].focus();
+            pressKey(document.activeElement, 'Enter');
+            expect(document.activeElement).toHaveAccessibleName('Remove Option 4');
+
+            pressKey(document.activeElement, 'Enter');
+            expect(document.activeElement).toHaveAccessibleName('Remove Option 1');
+
+            pressKey(document.activeElement, 'Enter');
+            expect(document.activeElement).toBe(pickle.trigger);
+            expect(getTags()).toHaveLength(0);
+        });
+
+        it('should close an open list with Escape on a focused tag', () => {
+            pickle = new Pickle(selectElement);
+            pickle.set(['option1']);
+            pickle.open();
+
+            const tag = getTags()[0];
+            tag.focus();
+            tag.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true }));
+
+            expect(pickle.isOpen).toBe(false);
+            expect(pickle.get()).toEqual(['option1']);
+        });
+
+        it('should not remove tags while the select is disabled', () => {
+            pickle = new Pickle(selectElement);
+            pickle.set(['option1', 'option2']);
+
+            pickle.setDisabled(true);
+            getTags().forEach(tag => expect(tag).toBeDisabled());
+            getTags()[0].click();
+            expect(pickle.get()).toEqual(['option1', 'option2']);
+
+            pickle.setDisabled(false);
+            getTags().forEach(tag => expect(tag).toBeEnabled());
+            getTags()[0].click();
+            expect(pickle.get()).toEqual(['option2']);
+        });
+
+        it('should not render tags for a single select', () => {
+            selectElement.multiple = false;
+            pickle = new Pickle(selectElement);
+            pickle.set('option1');
+
+            expect(getTags()).toHaveLength(0);
+        });
+    });
+
     describe('Touch and Mobile Support', () => {
         beforeEach(() => {
             pickle = new Pickle(selectElement);

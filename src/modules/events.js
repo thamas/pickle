@@ -46,6 +46,8 @@ export default class PickleEvents {
         });
 
         this.p.trigger.addEventListener('keydown', (e) => {
+            // Tags are native buttons; let Enter/Space fire their click.
+            if ((e.key === 'Enter' || e.key === ' ') && e.target.closest('.pickle-select__tag')) return;
             if (!this.p.disabled) {
                 this.p.keyboardNavigation.handleKeydown(e);
             }

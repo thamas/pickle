@@ -216,19 +216,23 @@ export default class PickleDOM {
                     if (optionData) {
                         const tag = this.createElement('button', 'pickle-select__tag');
                         tag.type = 'button';
-
-                        const sanitizer = document.createElement('div');
-                        sanitizer.textContent = optionData.text;
-
+                        tag.disabled = this.p.disabled;
                         tag.textContent = optionData.text;
-                        tag.setAttribute('aria-label', `Remove ${sanitizer.innerHTML}`);
+                        tag.setAttribute('aria-label', this.p.l10n.removeTag.replace('{text}', () => optionData.text));
 
                         const removeBtn = this.createElement('span', 'pickle-select__tag-remove');
+                        removeBtn.setAttribute('aria-hidden', 'true');
                         removeBtn.innerHTML = '&times;';
 
                         tag.addEventListener('click', e => {
                             e.stopPropagation();
+                            const hadFocus = document.activeElement === tag;
+                            const index = Array.from(this.p.valueDisplay.children).indexOf(tag);
                             this.p.optionManager.toggleOptionSelection(value);
+                            if (hadFocus) {
+                                const tags = this.p.valueDisplay.querySelectorAll('.pickle-select__tag');
+                                (tags[index] || tags[index - 1] || this.p.trigger).focus();
+                            }
                         });
                         tag.appendChild(removeBtn);
                         this.p.valueDisplay.appendChild(tag);
